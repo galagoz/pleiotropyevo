@@ -1,2 +1,2 @@
 # pleiotropyevo
-repo forthe rhythm-dyslexia pleiotropy-evo project
+repo for the rhythm-dyslexia pleiotropy-evo project
