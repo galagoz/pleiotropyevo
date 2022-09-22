@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "/home/gokala/programs/ldsc/munge_sumstats.py", line 745, in <module>
-    munge_sumstats(parser.parse_args(), p=True)
-  File "/home/gokala/programs/ldsc/munge_sumstats.py", line 643, in munge_sumstats
-    raise ValueError('Could not determine N.')
-ValueError: Could not determine N.
