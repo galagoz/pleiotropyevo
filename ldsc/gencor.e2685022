@@ -1,0 +1,14 @@
+/opt/sge/default/spool/gridnode026/job_scripts/2685022: line 18: load: command not found
+/opt/sge/default/spool/gridnode026/job_scripts/2685022: line 19: activate: No such file or directory
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/ldsc.py", line 12, in <module>
+    import ldscore.ldscore as ld
+  File "/home/gokala/programs/ldsc/ldscore/ldscore.py", line 2, in <module>
+    import numpy as np
+ImportError: No module named numpy
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/ldsc.py", line 12, in <module>
+    import ldscore.ldscore as ld
+  File "/home/gokala/programs/ldsc/ldscore/ldscore.py", line 2, in <module>
+    import numpy as np
+ImportError: No module named numpy

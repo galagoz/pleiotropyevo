@@ -1,0 +1,103 @@
+---
+title: "plot_gctb"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(cowplot)
+library(reshape2)
+```
+
+```{r readData}
+
+gctb_results = read.csv("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GCTB/gctb_results_summary.csv", header = T)
+
+partherit_results_dir = dir("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit", 
+                            pattern = "results.results", 
+                            include.dirs = F,
+                            full.names = T)
+
+partherit_results = data.frame(matrix(NA, nrow = length(partherit_results_dir), ncol = 5))
+colnames(partherit_results) = c("Trait", 
+                                "annot",
+                                "enrichment",
+                                "enrichment_se",
+                                "enrichment_p")
+
+for (i in 1:length(partherit_results_dir)) {
+
+    tmp_res = read.table(partherit_results_dir[i], header = T)
+    partherit_results$Trait[i] = strsplit(strsplit(partherit_results_dir[i], split = "/")[[1]][10], split = "\\.")[[1]][1]
+    partherit_results$annot[i] = strsplit(strsplit(partherit_results_dir[i], split = "/")[[1]][10], split = "\\.")[[1]][2]
+    partherit_results$enrichment[i] = tmp_res$Enrichment[1]
+    partherit_results$enrichment_se[i] = tmp_res$Enrichment_std_error[1]
+    partherit_results$enrichment_p[i] = tmp_res$Enrichment_p[1]
+    
+}
+
+# remove dys_rhy_MA, because we are interested in only dys_flippedZRhy_MA
+partherit_results = partherit_results[-c(4,5,6),]
+partherit_results$fdr = p.adjust(partherit_results$enrichment_p, method = "fdr")
+partherit_results$Trait = gsub(partherit_results$Trait, pattern = "dys_flippedZRhy_MA", replacement = "Meta_analysis")
+partherit_results$Trait = gsub(partherit_results$Trait, pattern = "dyslexia", replacement = "Dyslexia")
+partherit_results$Trait = gsub(partherit_results$Trait, pattern = "flippedZRhythym", replacement = "Rhythm_impairment")
+
+# merge results
+
+merged_df = merge(partherit_results, gctb_results, by = "Trait")
+
+merged_df2 <- melt(merged_df, id = 1, measure = c(3,7,9,11))
+merged_df3 <- melt(merged_df, id = 1, measure = c(4,8,10,12))
+merged_df2$se = merged_df3$value
+
+```
+
+```{r gctb_only}
+
+p1 = ggplot(gctb_results, aes(factor(gctb_results$Trait, levels = gctb_results$Trait), S)) + 
+  geom_errorbar(aes(ymax = S + S_SE,  ymin = S - S_SE), position = position_dodge(0.9),width=0) +
+  geom_point(position = position_dodge(0.9), size = 2) +
+  labs(y = "Selection Coefficient", 
+       x = "Trait") + coord_flip() + geom_hline(yintercept = mean(gctb_results$S), linetype="dotted", 
+                                               color = "red", size=0.5) +
+  theme_cowplot()
+
+p2 = ggplot(gctb_results, aes(factor(gctb_results$Trait, levels = gctb_results$Trait), SNP.h2)) + 
+  geom_errorbar(aes(ymax = SNP.h2 + SNP.h2_SE,  ymin = SNP.h2 - SNP.h2_SE), position = position_dodge(0.9),width=0) +
+  geom_point(position = position_dodge(0.9), size = 2) +
+  labs(y = "SNP-h2", 
+       x = "Trait") + coord_flip() + geom_hline(yintercept = mean(gctb_results$SNP.h2), linetype="dotted", 
+                                               color = "red", size=0.5) +
+  theme_cowplot()+
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank() 
+        )
+
+p3 = ggplot(gctb_results, aes(factor(gctb_results$Trait, levels = gctb_results$Trait), Polygenicity)) + 
+  geom_errorbar(aes(ymax = Polygenicity + Polygenicity_SE,  ymin = Polygenicity - Polygenicity_SE), position = position_dodge(0.9),width=0) +
+  geom_point(position = position_dodge(0.9), size = 2) +
+  labs(y = "Polygenicity", 
+       x = "Trait") + coord_flip() + geom_hline(yintercept = mean(gctb_results$Polygenicity), linetype="dotted", 
+                                               color = "red", size=0.5) +
+  theme_cowplot()+
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank() 
+        )
+
+p4 = plot_grid(p1, p2, p3, ncol = 3, align = "h", rel_widths = c(4, 2.5, 2.5))
+ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GCTB/gctb_plot.pdf", p4, width = 10, height = 3)
+```
+```{r gctb_and_partherit}
+
+merged_df_p = ggplot(merged_df2, aes(x = Trait, y = value)) +
+  geom_point() +
+  geom_errorbar(aes(ymax = value + se,  ymin = value - se), position = position_dodge(0.9),width=0) +
+  facet_grid(~ variable, scales = "free") +
+  coord_flip()
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/figures/evo_plot.pdf", merged_df_p, width = 10, height = 3)
+
+```
+

@@ -1,0 +1,27 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--signed-sumstats OR,1 \
+--out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA \
+--merge-alleles /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/w_hm3.snplist \
+--frq MAF \
+--N-col N_obs \
+--sumstats /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA/NGWAMA_test.N_weighted_GWAMA.results.txt 
+
+
+ERROR converting summary statistics:
+
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/munge_sumstats.py", line 627, in munge_sumstats
+    raise ValueError('Could not find {C} column.'.format(C=c))
+ValueError: Could not find SIGNED_SUMSTAT column.
+
+
+Conversion finished at Mon Mar  7 19:33:14 2022
+Total time elapsed: 0.0s

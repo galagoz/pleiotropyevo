@@ -1,0 +1,66 @@
+---
+title: "cFDF-common-controls"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("devtools")
+install_github("jamesliley/cFDR-common-controls")
+```
+
+## R Markdown
+
+```{r readData}
+clapbeat = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/clap-beat_overlap_forManhattan4.tab")
+dyslexia = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_overlap_forManhattan4.tab")
+
+colnames(clapbeat) = c("SNP", "CHR", "BP","clapbeat_p")
+colnames(dyslexia) = c("SNP", "CHR", "BP","dyslexia_p")
+
+for_clapbeat_cFDR = clapbeat
+for_dyslexia_cFDR = dyslexia
+for_clapbeat_cFDR$dyslexia_p = dyslexia$dyslexia_p
+for_dyslexia_cFDR$clapbeat_p = clapbeat$clapbeat_p
+
+nrow(clapbeat[clapbeat$clapbeat_p < 1E-5,])
+nrow(dyslexia[dyslexia$dyslexia_p < 1E-5,])
+
+```
+
+## cFDR-common-controls
+
+```{r analysis}
+
+# "P_j vector of p-values or adjusted p-values for the conditional phenotype. If controls are shared between GWAS, the p-values must be adjusted using the function \code{\link{exp_quantile}}."
+
+# thus, first adjust P_j using exp_quantile
+# for running exp_quantile in a shared controls set-up, you need the correlation between pheno_1 and pheno_2 Z-scores, which is rho ("If rho=0 (no shared controls) z values for the two phenotypes are independent, and the expected quantile equals parameter p.""). SO let's first calculate Z-scores for both phenotypes and get the 
+
+clapbeat_cFDR$ = cfdrCommonControls::exp_quantile(for_clapbeat_cFDR$clapbeat_p, for_clapbeat_cFDR$dyslexia_p)
+
+# estimate the conditional FDR for p1 (clapbeat), conditioned on p2 (dyslexia)
+clapbeat_cFDR = cfdrCommonControls::cfdr(for_clapbeat_cFDR$clapbeat_p, for_clapbeat_cFDR$dyslexia_p) #, p2_threshold = 1E-5
+
+# estimate the conditional FDR for p1 (dyslexia), conditioned on p2 (clapbeat)
+dyslexia_cFDR = cfdrCommonControls::cfdr(for_dyslexia_cFDR$dyslexia_p, for_dyslexia_cFDR$clapbeat_p, sub =1:length(for_dyslexia_cFDR$dyslexia_p)) #, p2_threshold = 1E-5
+
+```
+
+```{r ZscoreCor}
+##' Compute correlation between z values arising from shared controls
+##' Uses a formula from Zaykin et al (2010)
+##'
+##' @title cor_shared
+##' @param n0i Number of controls in GWAS for principal phenotype
+##' @param n0j Number of controls in GWAS for conditional phenotype
+##' @param n1i Number of cases in GWAS for principal phenotype
+##' @param n1j Number of cases in GWAS for conditional phenotype
+##' @param overlap Number of controls shared between studies  
+##' @return Asymptotic correlation between z scores.
+##' @export
+##' @author James Liley
+
+cfdrCommonControls::cor_shared()
+```
+

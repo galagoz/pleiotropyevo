@@ -1,0 +1,92 @@
+---
+title: "CPASSOC_SHom"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("/home/gokala/programs/CPASSOC/FunctionSet.R")
+library(data.table)
+library(plyr)
+library(qqman)
+```
+
+## Read in the data. The summary statistics data file for CPASSOC needs these columns: SNP ID, dyslexia Z-score, rhythm Z-score, sample sizes
+
+```{r estimCorMat}
+
+# the reformatted sumstats for GWAMA has all necessary columns, just need a bit of data wrangling
+
+clapbeat = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythym_reformatted_forNweighted5.txt")
+dyslexia = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_reformatted_forNweighted3.txt")
+
+## Because each SNP may have a different sample size in the 23andMe data, we used the median sample size across SNPs for each trait
+clapbeat_Samplesize = max(clapbeat$N)
+clapbeat2 = subset(clapbeat, N > 0.7*clapbeat_Samplesize)
+clapbeat_MedianSamplesize = median(clapbeat2$N)
+# clapbeat_MedianSamplesize = 606,727
+
+dyslexia_Samplesize = max(dyslexia$N)
+dyslexia2 = subset(dyslexia, N > 0.7*dyslexia_Samplesize)
+dyslexia_MedianSamplesize = median(dyslexia2$N)
+# dyslexia_MedianSamplesize = 1,138,870
+
+clapbeat = clapbeat[, c(1, 8)]
+colnames(clapbeat) = c("MarkerName", "Clapbeat")
+dyslexia = dyslexia[, c(1, 8)]
+colnames(dyslexia) = c("MarkerName", "Dyslexia")
+
+one_data_frame_to_rule_them_all = as.data.frame(join(clapbeat, dyslexia, type = "inner"))
+rownames(one_data_frame_to_rule_them_all) = one_data_frame_to_rule_them_all$MarkerName
+one_data_frame_to_rule_them_all = one_data_frame_to_rule_them_all[,-1]
+
+```
+
+## Estimating the correlation matrix 
+
+```{r estimCorMat}
+
+# Remove SNPs with Z-score larger than 1.96 or smaller than −1.96, assuming the summary statistics
+
+Index = which(abs(one_data_frame_to_rule_them_all$Clapbeat)>1.96 | abs(one_data_frame_to_rule_them_all$Dyslexia)>1.96)
+
+one_data_frame_to_rule_them_all_forCor = one_data_frame_to_rule_them_all[-Index,]
+
+correlation_matrix = cor(one_data_frame_to_rule_them_all_forCor)
+
+SampleSizes = c(clapbeat_MedianSamplesize, dyslexia_MedianSamplesize)
+
+```
+
+```{r SHom}
+
+# perform SHom
+dys_rhy.shom = SHom(one_data_frame_to_rule_them_all, 
+                    SampleSizes, 
+                    correlation_matrix)
+
+# obtain P-values of SHom
+p.shom = pchisq(dys_rhy.shom, df = 1, ncp = 0, lower.tail = F)
+
+```
+
+```{r tidyAndPlot}
+
+shom = cbind(dys_rhy.shom, p.shom)
+
+shom2 = merge(shom, dyslexia2[,c("SNPID","EA","OA","CHR","BP","EAF")], by.x="row.names", by.y="SNPID")
+
+shom2$CHR = as.numeric(gsub("X", "23", shom2$CHR))
+
+png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/CPASSOC/SHom_Dys_flippedZRhy_results_QQplot.png", type="cairo")
+qq(shom2$p.shom)
+dev.off()
+
+png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/CPASSOC/SHom_Dys_flippedZRhy_results_Manhattanplot.png", type="cairo", width=2000, height=500)
+manhattan(shom2, chr = "CHR", bp = "BP", p = "p.shom", snp = "Row.names", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+dev.off()
+
+write.table(shom2, "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/CPASSOC/SHom_Dys_flippedZRhy_results.txt", col.names=TRUE, row.names=FALSE, quote = FALSE, sep="\t")
+
+```
+

@@ -1,0 +1,47 @@
+*** Beginning LDSC partitioned heritability...
+Trait: rhythym_dyslexia_MA.sumstats.gz
+Annot: fetal_hge_hg19.merged.sorted
+Output: /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.fetalHGE.results
+Baseline: 
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--h2 /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA.sumstats.gz \
+--ref-ld-chr /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/fetal_hge_hg19.merged.sorted/fetal_hge_hg19.merged.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations//.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD. \
+--out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.fetalHGE.results \
+--overlap-annot  \
+--frqfile-chr /data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_frq/1000G.EUR.QC. \
+--w-ld-chr /data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC. \
+--print-coefficients  
+
+Beginning analysis at Tue Mar  8 13:10:09 2022
+Namespace(M=None, annot=None, bfile=None, chisq_max=None, chunk_size=50, cts_bin=None, cts_breaks=None, cts_names=None, extract=None, frqfile=None, frqfile_chr='/data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_frq/1000G.EUR.QC.', h2='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA.sumstats.gz', h2_cts=None, intercept_gencov=None, intercept_h2=None, invert_anyway=False, keep=None, l2=False, ld_wind_cm=None, ld_wind_kb=None, ld_wind_snps=None, maf=None, n_blocks=200, no_check_alleles=False, no_intercept=False, no_print_annot=False, not_M_5_50=False, out='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.fetalHGE.results', overlap_annot=True, per_allele=False, pickle=False, pop_prev=None, pq_exp=None, print_all_cts=False, print_coefficients=True, print_cov=False, print_delete_vals=False, print_snps=None, ref_ld=None, ref_ld_chr='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/fetal_hge_hg19.merged.sorted/fetal_hge_hg19.merged.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations//.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD.', ref_ld_chr_cts=None, return_silly_things=False, rg=None, samp_prev=None, thin_annot=False, two_step=None, w_ld=None, w_ld_chr='/data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC.', yes_really=False)
+Reading summary statistics from /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA.sumstats.gz ...
+Read summary statistics for 1080503 SNPs.
+Reading reference panel LD Score from /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/fetal_hge_hg19.merged.sorted/fetal_hge_hg19.merged.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations//.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD.[1-22] ... (ldscore_fromlist)
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/ldsc.py", line 644, in <module>
+    sumstats.estimate_h2(args, log)
+  File "/home/gokala/programs/ldsc/ldscore/sumstats.py", line 327, in estimate_h2
+    args, log, args.h2)
+  File "/home/gokala/programs/ldsc/ldscore/sumstats.py", line 243, in _read_ld_sumstats
+    ref_ld = _read_ref_ld(args, log)
+  File "/home/gokala/programs/ldsc/ldscore/sumstats.py", line 82, in _read_ref_ld
+    'reference panel LD Score', ps.ldscore_fromlist)
+  File "/home/gokala/programs/ldsc/ldscore/sumstats.py", line 152, in _read_chr_split_files
+    out = parsefunc(_splitp(chr_arg), _N_CHR, **kwargs)
+  File "/home/gokala/programs/ldsc/ldscore/parse.py", line 103, in ldscore_fromlist
+    y = ldscore(fh, num)
+  File "/home/gokala/programs/ldsc/ldscore/parse.py", line 147, in ldscore
+    first_fh = sub_chr(fh, chrs[0]) + suffix
+IndexError: list index out of range
+
+Analysis finished at Tue Mar  8 13:10:15 2022
+Total time elapsed: 6.32s
+Finished!

@@ -1,0 +1,50 @@
+---
+title: "globularity_summary"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+### 
+
+```{r readdata}
+partherit_neanDep_res = read.table("/data/workspaces/lag/workspaces/lg-ukbiobank/projects/globularity/evolution/results/partherit/globularity.neanDepRegions.results.results", header = T)[1,]
+partherit_neanRA_res = read.table("/data/workspaces/lag/workspaces/lg-ukbiobank/projects/globularity/evolution/results/partherit/globularity.neanRA.results.results", header = T)[1,]
+partherit_sweeps_res = read.table("/data/workspaces/lag/workspaces/lg-ukbiobank/projects/globularity/evolution/results/partherit/globularity.sweeps.results.results", header = T)[1,]
+
+partherit_res = data.frame(matrix(nrow = 3, ncol = ncol(partherit_neanDep_res)))
+colnames(partherit_res) = colnames(partherit_neanDep_res)
+
+partherit_res[1,] = partherit_neanDep_res[1,]
+partherit_res[2,] = partherit_neanRA_res[1,]
+partherit_res[3,] = partherit_sweeps_res[1,]
+
+partherit_res$annot[1] = "Neanderthal Depleted Regions"
+partherit_res$annot[2] = "Neanderthal Reintroduced Alleles"
+partherit_res$annot[3] = "Ancient Selective Sweeps"
+```
+
+## Including Plots
+
+```{r plot}
+p = ggplot(data = partherit_res, mapping = aes(annot, Enrichment)) +
+           geom_bar(stat = "identity", position = "dodge", fill = "#ED6B06") + ##00786A
+           geom_linerange(position = position_dodge(width = 0.9), aes(ymin = Enrichment - Enrichment_std_error, ymax = Enrichment + Enrichment_std_error)) +
+           theme_classic() +
+           theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+           theme(legend.position = "bottom") +
+           labs(
+            x = "Annotation",
+            y = expression(paste("SNP-", italic("h"^{
+            2
+            }), " Enrichment")),
+           title = "Endocranial Globularity partitioned heritability",
+           )
+  
+p = p + annotate("text", x = "Neanderthal Depleted Regions", y = 0.8, label = "*")
+ggsave(filename = "/data/workspaces/lag/workspaces/lg-ukbiobank/projects/globularity/evolution/results/partherit/partherit_enrichment_plots.pdf", p,
+       width = 7, height = 5)
+```

@@ -1,0 +1,49 @@
+#$ -N munge_sumstats
+#$ -cwd
+#$ -q single.q
+#$ -S /bin/bash
+
+# Gokberk Alagoz, March 2022
+
+#-----Munge Sumstats-----
+
+# Reformat GWAS summary stats before computing LDSC intercept
+# munge_sumstats.py is from github.com/bulik/ldsc
+# Based on the tutorial at github.com/bulik/ldsc/wiki/Heritability-and-Genetic-Correlation
+
+#-----Variables-----
+# $input - summary statistic file
+# $output - outfile_name
+
+ldsc="/home/gokala/programs/ldsc"
+hapmap="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/w_hm3.snplist"
+inDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data"
+sumstatsList="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/sumstats_toMunge.txt"
+MA="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA"
+
+# mkdir ${inDir}/munged
+
+#-----Rhythym
+
+${ldsc}/munge_sumstats.py \
+--sumstats ${inDir}/rhythym_reformatted_forNweighted6.txt \
+--signed-sumstats Z,0 \
+--out ${inDir}/munged/flippedZRhythym \
+--merge-alleles ${hapmap}
+
+#-----Dyslexia
+
+# ${ldsc}/munge_sumstats.py \
+# --sumstats ${inDir}/dyslexia_reformatted_forModelAveraged_forMunge.tab \
+# --signed-sumstats Z,0 \
+# --out ${inDir}/munged/dyslexia \
+# --merge-alleles ${hapmap}
+
+#-----MA
+
+# ${ldsc}/munge_sumstats.py \
+# --sumstats ${MA}/NGWAMA_beatFlippedZ.N_weighted_GWAMA.results.txt \
+# --frq MAF \
+# --N-col N_obs \
+# --out ${inDir}/munged/flippedZRhythym_dyslexia_MA \
+# --merge-alleles ${hapmap}

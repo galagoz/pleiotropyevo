@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/munge_sumstats.py", line 745, in <module>
+    munge_sumstats(parser.parse_args(), p=True)
+  File "/home/gokala/programs/ldsc/munge_sumstats.py", line 639, in munge_sumstats
+    raise ValueError('Found {num} different {C} columns'.format(C=head,num=str(numc)))
+ValueError: Found 2 different FRQ columns

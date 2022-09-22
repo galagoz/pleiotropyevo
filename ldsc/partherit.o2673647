@@ -1,0 +1,57 @@
+*** Beginning LDSC partitioned heritability...
+Trait: fdyslexia.sumstats.gz
+Annot: fetal_hge_hg19.merged.sorted
+Output: /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dyslexia.fetalHGE.results
+Baseline: E081_active_marks
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--h2 /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/fdyslexia.sumstats.gz \
+--ref-ld-chr /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/fetal_hge_hg19.merged.sorted/fetal_hge_hg19.merged.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/E081_active_marks/E081_active_marks.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD. \
+--out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dyslexia.fetalHGE.results \
+--overlap-annot  \
+--frqfile-chr /data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_frq/1000G.EUR.QC. \
+--w-ld-chr /data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC. \
+--print-coefficients  
+
+Beginning analysis at Tue Mar 15 16:02:25 2022
+Namespace(M=None, annot=None, bfile=None, chisq_max=None, chunk_size=50, cts_bin=None, cts_breaks=None, cts_names=None, extract=None, frqfile=None, frqfile_chr='/data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_frq/1000G.EUR.QC.', h2='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/fdyslexia.sumstats.gz', h2_cts=None, intercept_gencov=None, intercept_h2=None, invert_anyway=False, keep=None, l2=False, ld_wind_cm=None, ld_wind_kb=None, ld_wind_snps=None, maf=None, n_blocks=200, no_check_alleles=False, no_intercept=False, no_print_annot=False, not_M_5_50=False, out='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dyslexia.fetalHGE.results', overlap_annot=True, per_allele=False, pickle=False, pop_prev=None, pq_exp=None, print_all_cts=False, print_coefficients=True, print_cov=False, print_delete_vals=False, print_snps=None, ref_ld=None, ref_ld_chr='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/fetal_hge_hg19.merged.sorted/fetal_hge_hg19.merged.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/E081_active_marks/E081_active_marks.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD.', ref_ld_chr_cts=None, return_silly_things=False, rg=None, samp_prev=None, thin_annot=False, two_step=None, w_ld=None, w_ld_chr='/data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC.', yes_really=False)
+Reading summary statistics from /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/fdyslexia.sumstats.gz ...
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/ldsc.py", line 644, in <module>
+    sumstats.estimate_h2(args, log)
+  File "/home/gokala/programs/ldsc/ldscore/sumstats.py", line 327, in estimate_h2
+    args, log, args.h2)
+  File "/home/gokala/programs/ldsc/ldscore/sumstats.py", line 242, in _read_ld_sumstats
+    sumstats = _read_sumstats(args, log, fh, alleles=alleles, dropna=dropna)
+  File "/home/gokala/programs/ldsc/ldscore/sumstats.py", line 163, in _read_sumstats
+    sumstats = ps.sumstats(fh, alleles=alleles, dropna=dropna)
+  File "/home/gokala/programs/ldsc/ldscore/parse.py", line 89, in sumstats
+    x = read_csv(fh, usecols=usecols, dtype=dtype_dict, compression=compression)
+  File "/home/gokala/programs/ldsc/ldscore/parse.py", line 21, in read_csv
+    return pd.read_csv(fh, delim_whitespace=True, na_values='.', **kwargs)
+  File "/usr/shared/apps/python/python-2.7.15/lib/python2.7/site-packages/pandas/io/parsers.py", line 702, in parser_f
+    return _read(filepath_or_buffer, kwds)
+  File "/usr/shared/apps/python/python-2.7.15/lib/python2.7/site-packages/pandas/io/parsers.py", line 429, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/usr/shared/apps/python/python-2.7.15/lib/python2.7/site-packages/pandas/io/parsers.py", line 895, in __init__
+    self._make_engine(self.engine)
+  File "/usr/shared/apps/python/python-2.7.15/lib/python2.7/site-packages/pandas/io/parsers.py", line 1122, in _make_engine
+    self._engine = CParserWrapper(self.f, **self.options)
+  File "/usr/shared/apps/python/python-2.7.15/lib/python2.7/site-packages/pandas/io/parsers.py", line 1853, in __init__
+    self._reader = parsers.TextReader(src, **kwds)
+  File "pandas/_libs/parsers.pyx", line 387, in pandas._libs.parsers.TextReader.__cinit__
+  File "pandas/_libs/parsers.pyx", line 631, in pandas._libs.parsers.TextReader._setup_parser_source
+  File "/usr/shared/apps/python/python-2.7.15/lib/python2.7/gzip.py", line 94, in __init__
+    fileobj = self.myfileobj = __builtin__.open(filename, mode or 'rb')
+IOError: [Errno 2] No such file or directory: '/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/fdyslexia.sumstats.gz'
+
+Analysis finished at Tue Mar 15 16:02:25 2022
+Total time elapsed: 0.13s
+Finished!

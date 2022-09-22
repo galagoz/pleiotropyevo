@@ -1,0 +1,26 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./munge_sumstats.py \
+--signed-sumstats Z,0 \
+--out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA \
+--merge-alleles /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/w_hm3.snplist \
+--frq MAF \
+--sumstats /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA/NGWAMA_test.N_weighted_GWAMA.results.txt 
+
+
+ERROR converting summary statistics:
+
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/munge_sumstats.py", line 639, in munge_sumstats
+    raise ValueError('Found {num} different {C} columns'.format(C=head,num=str(numc)))
+ValueError: Found 2 different FRQ columns
+
+
+Conversion finished at Mon Mar  7 18:06:59 2022
+Total time elapsed: 0.01s

@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/gokala/programs/ldsc/ldsc.py", line 12, in <module>
+    import ldscore.ldscore as ld
+  File "/home/gokala/programs/ldsc/ldscore/ldscore.py", line 2, in <module>
+    import numpy as np
+ImportError: No module named numpy

@@ -1,0 +1,86 @@
+---
+title: "qscore_analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+## Load Genomic SEM output files
+
+```{r loadData}
+
+outDir = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/"
+
+#
+#load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2.RData"))
+#
+#load(paste0(outDir, "GenomicSEM_multivarGWAS_model2_dys_rhyimp_v2.RData"))
+
+```
+
+## Compute heterogeneity scores
+
+```{r qScores, echo=FALSE}
+# order second df by the SNP order in the first df
+CorrelatedFactors2_v2 <- CorrelatedFactors2[[1]][match(CorrelatedFactors1$SNP, CorrelatedFactors2[[1]]$SNP),]
+
+#Step 3a: Calculate the chi-square for each SNP and save it in a vector called Q_chisq
+Q_chisq<-CorrelatedFactors1$chisq-CorrelatedFactors2_v2$chisq
+
+#Step 3b: Calculate the df associated with this chi-square statistic and name it df. Note that only the first run #is used to calculate df, as the degrees of freedom will be the same for every SNP. 
+df<-CorrelatedFactors1$chisq_df[1]-CorrelatedFactors2_v2$chisq_df[1]
+
+#Step 3c: Calculate the p-value associated with the Q-statistic, using the relevant degrees of freedom calculated #in Step 3b. This saves the p-values in a vector called Q_chisq_pval, and can easily be appended to either #CorrelatedFactors[[1]] or CorrelatedFactors[[2]] (i.e., using cbind). 
+Q_chisq_pval<-pchisq(Q_chisq, df, lower.tail = FALSE)
+
+CorrelatedFactors2_v2$Q_chisq = Q_chisq
+CorrelatedFactors2_v2$Q_chisq_pval = Q_chisq_pval
+```
+
+```{r checkResults}
+# see the relation between Q_chisq and Q_chisq_pvals
+
+#pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/q_chisq_pval.pdf")
+#hist(CorrelatedFactors2_v2$Q_chisq_pval)
+#dev.off()
+
+#pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/q_chisq.pdf")
+#hist(CorrelatedFactors2_v2$Q_chisq)
+#dev.off()
+
+#pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/q_chisq_VS_q_chisq_pval.pdf")
+#plot(CorrelatedFactors2_v2$Q_chisq, CorrelatedFactors2_v2$Q_chisq_pval)
+#dev.off()
+
+
+```
+```{r subset_on_chisqPval}
+
+CorrelatedFactors2_v2_QchisqPvalSorted = CorrelatedFactors2_v2[order(Q_chisq_pval),]
+#head(CorrelatedFactors2_v2_QchisqPvalSorted)
+#nrow(CorrelatedFactors2_v2_QchisqPvalSorted) -> 3,371,291 total SNPs
+
+CorrelatedFactors2_v2_QchisqPvalFiltered = CorrelatedFactors2_v2_QchisqPvalSorted[CorrelatedFactors2_v2_QchisqPvalSorted$Q_chisq_pval<0.00000005,]
+#head(CorrelatedFactors2_v2_QchisqPvalFiltered)
+#nrow(CorrelatedFactors2_v2_QchisqPvalFiltered) -> 3,584 genome-wide significant SNPs
+
+# quick QC of genome-wide significant subset of SNPs
+
+#pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/q_chisq_VS_q_chisq_pval_genomewideSigSNPs.pdf")
+#plot(CorrelatedFactors2_v2_QchisqPvalFiltered$Q_chisq, CorrelatedFactors2_v2_QchisqPvalFiltered$Q_chisq_pval)
+#dev.off()
+
+# FLAG - abundance of chr. 1 SNPs
+hist(CorrelatedFactors2_v2_QchisqPvalFiltered$CHR)
+
+# Would it make sense to run PLINK on the genome-wide significant SNPs subsets to account for LD
+# that is possibly driving the chr 1 signal? PLINK can filter on LD and give independent significant
+# SNPs?
+
+plot(CorrelatedFactors2_v2_QchisqPvalFiltered$est[3:nrow(CorrelatedFactors2_v2_QchisqPvalFiltered)], CorrelatedFactors2_v2_QchisqPvalFiltered$Q_chisq_pval[3:nrow(CorrelatedFactors2_v2_QchisqPvalFiltered)])
+
+```
+

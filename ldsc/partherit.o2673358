@@ -1,0 +1,5 @@
+*** Beginning LDSC partitioned heritability...
+Trait: rhythym_dyslexia_MA.sumstats.gz
+Annot: neanDepRegions_hg19.sorted
+Output: /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.neanDepRegions.results
+Finished!

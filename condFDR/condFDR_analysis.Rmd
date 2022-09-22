@@ -1,0 +1,173 @@
+---
+title: "condFDR_analysis"
+author: "Gokberk Alagoz"
+date: "November 11, 2021"
+output:
+  word_document: default
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(condFDR)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(qqman)
+
+```
+
+### Number of overlapping SNPs in dyslexia and clap-beat summary statistics
+
+There are 8,288,850 SNPs in the clap-beat, 7,995,922 SNPs in the dyslexia summary statistics files. *7,027,342* of these SNPs are present in both files.
+
+```{r echo = FALSE, warning=FALSE}
+clapbeat = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/clap-beat_overlap_forManhattan4.tab")
+dyslexia = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_overlap_forManhattan4.tab")
+colnames(clapbeat) = c("SNP", "CHR", "BP","clapbeat_p")
+colnames(dyslexia) = c("SNP", "CHR", "BP","dyslexia_p")
+
+for_clapbeat_cFDR = clapbeat
+for_dyslexia_cFDR = dyslexia
+for_clapbeat_cFDR$dyslexia_p = dyslexia$dyslexia_p
+for_dyslexia_cFDR$clapbeat_p = clapbeat$clapbeat_p
+
+nrow(clapbeat[clapbeat$clapbeat_p < 1E-5,])
+nrow(dyslexia[dyslexia$dyslexia_p < 1E-5,])
+
+```
+
+### Conditional and conjunctional FDR analysis with the _condFDR_ package
+
+```{r condFDR analysis, echo = FALSE, warning=FALSE}
+
+## Clap-beat GWAS
+# estimate the conditional FDR for p1 (clapbeat), conditioned on p2 (dyslexia)
+
+clapbeat_cFDR = cFDR(for_clapbeat_cFDR, "clapbeat_p", "dyslexia_p", p2_threshold = 1E-5)
+
+# estimate the conjuctional conditional FDR for p1 and p2, 
+# corresponding to a false discovery rate for SNPs that 
+# are associated with both phenotypes
+
+clapbeat_ccFDR = ccFDR(for_clapbeat_cFDR, "clapbeat_p", "dyslexia_p", p_threshold = 1E-5)
+clapbeat_ccFDR_nothreshold = ccFDR(for_clapbeat_cFDR, "clapbeat_p", "dyslexia_p")
+
+## Dyslexia GWAS
+# estimate the conditional FDR for p1 (dyslexia), conditioned on p2 (clapbeat)
+
+dyslexia_cFDR = cFDR(for_dyslexia_cFDR, "dyslexia_p", "clapbeat_p", p2_threshold = 1E-5)
+
+# estimate the conjuctional conditional FDR for p1 and p2, 
+# corresponding to a false discovery rate for SNPs that 
+# are associated with both phenotypes
+
+dyslexia_ccFDR = ccFDR(for_dyslexia_cFDR, "dyslexia_p", "clapbeat_p", p_threshold = 1E-5)
+dyslexia_ccFDR_nothreshold = ccFDR(for_dyslexia_cFDR, "dyslexia_p", "clapbeat_p")
+
+hist(-log10(clapbeat_ccFDR$ccFDR), col = "green", main = "-log10(pval) histograms")
+hist(-log10(dyslexia_ccFDR$ccFDR), col = "red", add = T)
+
+hist(-log10(clapbeat_ccFDR$cFDR1), col = "green", main = "-log10(pval) histograms")
+hist(-log10(dyslexia_ccFDR$cFDR1), col = "red", add = T)
+
+hist(-log10(clapbeat_ccFDR$cFDR2), col = "green", main = "-log10(pval) histograms")
+hist(-log10(dyslexia_ccFDR$cFDR2), col = "red", add = T)
+
+
+```
+Here I followed the default p-value threholds provided in the Github tutorial, but they mention that these thresholds are rather arbitrary, so we can change these for future analysis.
+
+#### condFDR
+A p-value threshold of 1e-5 was applied on the p-values that we condition on. This yields `r nrow(clapbeat_cFDR)` SNPs when we condition clap-beat p-values on dyxlexia p-values, and `r nrow(dyslexia_cFDR)` SNPs when dyslexia is conditioned on clap-beat. Here I do not apply a threshold on conditional FDRs.
+
+#### conjFDR
+Here I applied the same threshold (1e-5) on conjunctional FDR p-values and ended up with `r nrow(clapbeat_ccFDR)` SNPs for clap-beat and `r nrow(dyslexia_ccFDR)` SNPs for dyslexia with a conjunctional FDR value less than 1e-5.
+
+### Clap-beat GWAS, conditional and conjunctional FDR of clap-beat on dyslexia
+
+```{r echo = FALSE, fig.width=8, fig.height=8, fig.align = "center", warning=FALSE}
+
+# raw clapbeat manhattan plot
+clapbeat_manhattan = clapbeat[, c("SNP", "CHR", "BP", "clapbeat_p")]
+colnames(clapbeat_manhattan)[4] = "P"
+
+clapbeat_manhattan = clapbeat_manhattan[clapbeat_manhattan$CHR %in% seq(1:22), ]
+clapbeat_manhattan$CHR = as.numeric(clapbeat_manhattan$CHR)
+clapbeat_manhattan$BP = as.numeric(clapbeat_manhattan$BP)
+
+
+# condFDR clapbeat manhattan plot
+clapbeat_cFDR_manhattan = clapbeat_cFDR[, c("SNP", "CHR", "BP", "cFDR")]
+colnames(clapbeat_cFDR_manhattan)[4] = "P"
+
+clapbeat_cFDR_manhattan = clapbeat_cFDR_manhattan[clapbeat_cFDR_manhattan$CHR %in% seq(1:22), ]
+clapbeat_cFDR_manhattan$CHR = as.numeric(clapbeat_cFDR_manhattan$CHR)
+clapbeat_cFDR_manhattan$BP = as.numeric(clapbeat_cFDR_manhattan$BP)
+
+# conjFDR clapbeat manhattan plot
+clapbeat_ccFDR_manhattan = clapbeat_ccFDR[, c("SNP", "CHR", "BP", "ccFDR")]
+colnames(clapbeat_ccFDR_manhattan)[4] = "P"
+
+clapbeat_ccFDR_manhattan = clapbeat_ccFDR_manhattan[clapbeat_ccFDR_manhattan$CHR %in% seq(1:22), ]
+clapbeat_ccFDR_manhattan$CHR = as.numeric(clapbeat_ccFDR_manhattan$CHR)
+clapbeat_ccFDR_manhattan$BP = as.numeric(clapbeat_ccFDR_manhattan$BP)
+
+# plot
+
+par(mfrow=c(3,1))
+manhattan(clapbeat_manhattan, annotatePval = 0.00001, main = "Clap-beat GWAS",
+          col = c("blue4", "orange3"), chrlabs = c(1:22))
+manhattan(clapbeat_cFDR_manhattan, annotatePval = 0.00001, main = "Conditional FDR on dyslexia",
+          col = c("blue4", "orange3"), chrlabs = c(1:22))
+manhattan(clapbeat_ccFDR_manhattan, annotatePval = 0.00001, main = "Conjunctional FDR on dyslexia",
+          col = c("blue4", "orange3"), chrlabs = c(1:22))
+
+```
+
+### Dyslexia GWAS, conditional and conjunctional FDR of dyslexia on clap-beat
+
+```{r echo = FALSE, fig.width=8, fig.height=8, fig.align = "center", warning=FALSE}
+
+# raw dyslexia manhattan plot
+dyslexia_manhattan = dyslexia[, c("SNP", "CHR", "BP", "dyslexia_p")]
+colnames(dyslexia_manhattan)[4] = "P"
+
+dyslexia_manhattan = dyslexia_manhattan[dyslexia_manhattan$CHR %in% seq(1:22), ]
+dyslexia_manhattan$CHR = as.numeric(dyslexia_manhattan$CHR)
+dyslexia_manhattan$BP = as.numeric(dyslexia_manhattan$BP)
+
+# condFDR dyslexia manhattan plot
+dyslexia_cFDR_manhattan = dyslexia_cFDR[, c("SNP", "CHR", "BP", "cFDR")]
+colnames(dyslexia_cFDR_manhattan)[4] = "P"
+
+dyslexia_cFDR_manhattan = dyslexia_cFDR_manhattan[dyslexia_cFDR_manhattan$CHR %in% seq(1:22), ]
+dyslexia_cFDR_manhattan$CHR = as.numeric(dyslexia_cFDR_manhattan$CHR)
+dyslexia_cFDR_manhattan$BP = as.numeric(dyslexia_cFDR_manhattan$BP)
+
+# conjFDR dyslexia manhattan plot
+dyslexia_ccFDR_manhattan = dyslexia_ccFDR[, c("SNP", "CHR", "BP", "ccFDR")]
+colnames(dyslexia_ccFDR_manhattan)[4] = "P"
+
+dyslexia_ccFDR_manhattan = dyslexia_ccFDR_manhattan[dyslexia_ccFDR_manhattan$CHR %in% seq(1:22), ]
+dyslexia_ccFDR_manhattan$CHR = as.numeric(dyslexia_ccFDR_manhattan$CHR)
+dyslexia_ccFDR_manhattan$BP = as.numeric(dyslexia_ccFDR_manhattan$BP)
+
+# plot
+
+par(mfrow=c(3,1))
+manhattan(dyslexia_manhattan, annotatePval = 0.00001, main = "Dyslexia GWAS",
+          col = c("blue4", "orange3"), chrlabs = c(1:22))
+manhattan(dyslexia_cFDR_manhattan, annotatePval = 0.00001, main = "Conditional FDR on clap-beat",
+          col = c("blue4", "orange3"), chrlabs = c(1:22))
+manhattan(dyslexia_ccFDR_manhattan, annotatePval = 0.00001, main = "Conjunctional FDR on clap-beat",
+          col = c("blue4", "orange3"), chrlabs = c(1:22))
+
+```
+
+```{r}
+sessionInfo()
+```
+

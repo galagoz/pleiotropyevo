@@ -1,0 +1,90 @@
+---
+title: "LAVA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(LAVA)
+library(kableExtra)
+```
+
+```{r processInput}
+### Read in summary statistics and related info
+input = process.input(input.info.file="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input.info.txt",           # input info file
+                      sample.overlap.file="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/sample.overlap.txt",   # sample overlap file (can be set to NULL if there is no overlap)
+                      ref.prefix="/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr",                    # reference genotype data prefix
+                      phenos=c("dyslexia","rhythm_imp"))       # subset of phenotypes listed in the input info file that we want to process
+
+# inspect the processed input data
+ls(input)                     # this is actually an environment; hence ls() rather than str()
+ls(input$sum.stats)   # processed summary statistics
+head(input$sum.stats$bmi)
+input$info            # processed input info file, with additional variables computed by process.input()
+input$sample.overlap  # sample overlap file
+
+
+head(input$ref$bim)   # bim file from reference data
+  
+# read more about this function
+?process.input()
+```
+
+```{r prepareLocus}
+### Read in locus info file
+loci = read.loci("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/fetal_hge_hg19.merged.sorted.bed")
+head(loci)  # inspect the locus file
+#>   LOC CHR     START      STOP
+#> 1 100   1 113418038 114664387
+#> 2 230   2  26894103  28819510
+#> 3 266   2  57952946  59251996
+#> 4 374   2 191051955 193033982
+#> 5 464   3  47588462  50387742
+#> 6 950   6  25684630  26396200
+?read.loci  # read more about the function and possible data formats
+
+### Create a locus object for the first locus to prepare it for analysis
+locus = process.locus(loci[1,], input)
+
+ls(locus)                               # inspect locus
+c(locus$chr, locus$start, locus$stop)   # locus coordinates
+str(locus$snps)                         # locus snps
+locus$n.snps                            # N snps
+locus$omega                             # genetic covariance matrix
+locus$omega.cor                         # standardised genetic covariance matrix
+locus$phenos                            # locus phenotypes
+
+?process.locus  # find our more details in the function documentation
+```
+
+```{r univariateTest}
+# for all phenotypes in the locus
+run.univ(locus)
+#>         phen      h2.obs          p
+#> 1 depression 8.05125e-05 0.04240950
+#> 2      neuro 1.16406e-04 0.03154340
+#> 3        bmi 1.93535e-04 0.00146622
+```
+
+```{bash}
+Rscript /data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/Dyslexia/dyslexiaevol/clap-beat_dyslexia/LAVA/lava_script.R "/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/fetal_hge_hg19.merged.sorted.bed" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input.info.txt" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/sample.overlap.txt" "dyslexia;rhythm_imp" "dyslexia.rhythm_imp"
+```
+
+```{r plot}
+lava_results = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/bivar_results/all_annots.txt",
+                          header = T)
+
+lava_results = lava_results[!is.na(lava_results$rho), ]
+lava_results$fdr = p.adjust(lava_results$p, method = "fdr")
+
+kableExtra::kable(lava_results[,c(2,3,4,5,9,10,11,12,13,14,15,16,17)], "html",
+                  caption = "Local genetic correlation results for Dyslexia and Rhythm impairment.") %>%
+                  kable_styling("striped") %>%
+                  save_kable("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/figures/lava_table.pdf")
+lava_results[lava_results$fdr < 0.05,]
+kableExtra::kable(lava_results[lava_results$fdr < 0.05, c(2,3,4,5,9,10,11,12,13,14,15,16,17)], "html",
+                  caption = "Local genetic correlation results for Dyslexia and Rhythm impairment.") %>%
+                  kable_styling("striped") %>%
+                  save_kable("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/figures/lava_table_sigLoci.pdf")
+```
+

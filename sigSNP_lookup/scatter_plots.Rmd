@@ -1,0 +1,193 @@
+---
+title: "plot_lookups"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("scatterplot3d")
+library(ggplot2)
+
+MA = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/FUMA/FUMA_job178902_dys_rhyimp_MA/IndSigSNPs.txt", header = T)
+dys = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/snp_lookup/dysrhyimpMA_indSigSNPs_lookup_in_dys.txt")
+rhy = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/snp_lookup/dysrhyimpMA_indSigSNPs_lookup_in_rhy.txt")
+MA_lookup = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/snp_lookup/dysrhyimpMA_indSigSNPs_effectsize_lookup_in_MA.txt", header = T)
+rhyimp = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/snp_lookup/dysrhyimpMA_indSigSNPs_effectsize_lookup_in_rhyimp.txt", header = T)
+outDir = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/snp_lookup/"
+```
+
+```{r cars}
+nrow(MA)
+nrow(dys)
+nrow(rhy)
+
+# MA vs. dys
+MA_rsid_p = MA[,c(4,7)]
+colnames(MA_rsid_p) = c("rsID", "P")
+MA_rsid_p$P = -log10(MA_rsid_p$P)
+
+dys_rsid_p = dys[,c(19,3)]
+colnames(dys_rsid_p) = c("rsID","P")
+dys_rsid_p$P = -log10(dys_rsid_p$P)
+
+merged_df = merge(MA_rsid_p, dys_rsid_p, by = "rsID")
+
+subset_merged_df = merged_df[merged_df$P.x<10,]
+subset_merged_df2 = subset_merged_df[subset_merged_df$P.y<10,]
+
+pdf(paste0(outDir, "MA_dys_pval.pdf"))
+plot(merged_df$P.x, merged_df$P.y, main = "MA vs. Dyslexia GWAS (-log10(P))",
+     xlab = "MA", ylab = "Dyslexia",
+     frame = F)
+abline(lm(merged_df$P.y ~ merged_df$P.x, data = merged_df), col = "blue")
+dev.off()
+
+pdf(paste0(outDir, "MA_dys_pval<10.pdf"))
+p2_dys = plot(subset_merged_df2$P.x, subset_merged_df2$P.y, main = "MA vs. Dyslexia GWAS (-log(P)<10)",
+     xlab = "MA", ylab = "Dyslexia",
+     frame = F)
+abline(lm(subset_merged_df2$P.y ~ subset_merged_df2$P.x, data = subset_merged_df2), col = "blue")
+dev.off()
+```
+
+```{r pressure, echo=FALSE}
+# MA vs. rhy
+
+rhy_rsid_p = rhy[,c(42,3)]
+colnames(rhy_rsid_p) = c("rsID","P")
+rhy_rsid_p$P = -log10(rhy_rsid_p$P)
+
+merged_df2 = merge(MA_rsid_p, rhy_rsid_p, by = "rsID")
+
+pdf(paste0(outDir, "MA_rhy_pval.pdf"))
+plot(merged_df2$P.x, merged_df2$P.y, main = "MA vs. Rhythm GWAS (-log10(P))",
+     xlab = "MA", ylab = "Rhythm",
+     frame = F)
+abline(lm(merged_df2$P.y ~ merged_df2$P.x, data = merged_df2), col = "blue")
+dev.off()
+
+subset_merged_df2 = merged_df2[merged_df2$P.x<10,]
+subset_merged_df3 = subset_merged_df2[subset_merged_df2$P.y<10,]
+
+pdf(paste0(outDir, "MA_rhy_pval<10.pdf"))
+p2_rhy = plot(subset_merged_df3$P.x, subset_merged_df3$P.y, main = "MA vs. Rhythm GWAS (-log(P)<10)",
+     xlab = "MA", ylab = "Rhythm",
+     frame = F)
+abline(lm(subset_merged_df3$P.y ~ subset_merged_df3$P.x, data = subset_merged_df3), col = "blue")
+dev.off()
+```
+
+```{r}
+MA_rsid_effect = MA_lookup[,c(2,11)]
+dys_rsid_effect = dys[,c(19,4)]
+colnames(dys_rsid_effect) = c("SNP", "Effect")
+rhy_rsid_effect = rhy[,c(42,4)]
+colnames(rhy_rsid_effect) = c("SNP", "Effect")
+rhyimp_rsid_effect = data.frame(SNP = rhy_rsid_effect$SNP, Effect = -rhy_rsid_effect$Effect)
+colnames(rhyimp_rsid_effect) = c("SNP", "Effect")
+
+MA_dys_eff = merge(MA_rsid_effect, dys_rsid_effect, by = "SNP")
+MA_rhy_eff = merge(MA_rsid_effect, rhy_rsid_effect, by = "SNP")
+MA_rhyimp_eff = merge(MA_rsid_effect, rhyimp_rsid_effect, by = "SNP")
+  
+pdf(paste0(outDir, "MA_dys_effect.pdf"))
+plot(MA_dys_eff$BETA, MA_dys_eff$Effect, main = "MA BETA vs. Dyslexia Effect",
+     xlab = "MA", ylab = "Dyslexia",
+     frame = F)
+abline(lm(MA_dys_eff$Effect ~ MA_dys_eff$BETA, data = MA_dys_eff), col = "blue")
+dev.off()
+
+pdf(paste0(outDir, "MA_rhy_effect.pdf"))
+plot(MA_rhy_eff$BETA, MA_rhy_eff$Effect, main = "MA BETA vs. Rhythm Effect",
+     xlab = "MA", ylab = "Rhythm",
+     frame = F)
+abline(lm(MA_rhy_eff$Effect ~ MA_rhy_eff$BETA, data = MA_rhy_eff), col = "blue")
+dev.off()
+
+pdf(paste0(outDir, "MA_rhyimp_effect.pdf"))
+plot(MA_rhyimp_eff$BETA, MA_rhyimp_eff$Effect, main = "MA BETA vs. Rhythm impairment Effect",
+     xlab = "MA", ylab = "Rhythm impairment",
+     frame = F)
+abline(lm(MA_rhyimp_eff$Effect ~ MA_rhyimp_eff$BETA, data = MA_rhyimp_eff), col = "blue")
+dev.off()
+```
+
+```{r}
+# beat vs. dys pvalues
+
+merged_df_dysrhy = merge(dys_rsid_p, rhy_rsid_p, by = "rsID")
+
+pdf(paste0(outDir, "dys_rhy_pval.pdf"))
+plot(merged_df_dysrhy$P.x, merged_df_dysrhy$P.y, main = "Dyslexia vs. Rhythm GWASs (-log10(P))",
+     xlab = "Dyslexia", ylab = "Rhythm",
+     frame = F)
+abline(lm(merged_df_dysrhy$P.y ~ merged_df_dysrhy$P.x, data = merged_df_dysrhy), col = "blue")
+dev.off()
+
+subset_merged_df_dysrhy = merged_df_dysrhy[merged_df_dysrhy$P.x<10,]
+subset_merged_df_dysrhy2 = subset_merged_df_dysrhy[subset_merged_df_dysrhy$P.y<10,]
+
+pdf(paste0(outDir, "dys_rhy_pval<10.pdf"))
+plot(subset_merged_df_dysrhy2$P.x, subset_merged_df_dysrhy2$P.y, main = "Dyslexia vs. Rhythm GWASs (-log(P)<10)",
+     xlab = "Dyslexia", ylab = "Rhythm",
+     frame = F)
+abline(lm(subset_merged_df_dysrhy2$P.y ~ subset_merged_df_dysrhy2$P.x, data = subset_merged_df_dysrhy2), col = "blue")
+dev.off()
+
+ggplot(subset_merged_df_dysrhy2, aes(P.x, P.y)) + 
+  geom_point(position = position_dodge(0.9), size = 2, shape = 1) +
+  labs(y = "-log10(P) of Rhythm impairment", 
+       x = "-log10(P) of Dyslexia") +
+  theme_classic()
+
+ggsave(paste0(outDir, "dys_rhyimp_pvalues_v2.pdf"))
+
+# beat vs. dys effects
+
+dys_rhyimp_eff = merge(dys_rsid_effect, rhyimp_rsid_effect, by = "SNP")
+
+pdf(paste0(outDir, "dys_rhyimp_effect.pdf"))
+
+ggplot(dys_rhyimp_eff$Effect.x, dys_rhyimp_eff$Effect.y, main = "Dyslexia vs. Rhythm-impairment Effects",
+     xlab = "Dyslexia", ylab = "Rhythm-impairment",
+     frame = F)  + ylim(-0.12, 0.12) + xlim(-0.12, 0.12)
+abline(lm(dys_rhyimp_eff$Effect.x ~ dys_rhyimp_eff$Effect.y, data = dys_rhyimp_eff), col = "blue")
+dev.off()
+
+ggplot(dys_rhyimp_eff, aes(Effect.x, Effect.y, label = SNP)) + 
+  geom_point(position = position_dodge(0.9), size = 2, shape = 1) +
+  geom_abline() + 
+  labs(y = "Beta of Rhythm impairment", 
+       x = "Beta of Dyslexia") + xlim(-0.2,0.2) +
+  geom_hline(yintercept = 0, linetype="dotted", color = "grey", size=0.5) +
+  geom_vline(xintercept = 0, linetype="dotted", color = "grey", size=0.5) +
+  geom_text(hjust=0, vjust=0) +
+  theme_classic()
+
+ggsave(paste0(outDir, "dys_rhyimp_effects_v3.pdf"))
+
+```
+
+```{r}
+merged_all_pvals = merge(merged_df_dysrhy, MA_rsid_p, by = "rsID")
+merged_all_effects = merge(dys_rhyimp_eff, MA_rsid_effect, by = "SNP")
+
+pdf(paste0(outDir, "MA_dys_rhyimp_pvals_3D.pdf"))
+scatterplot3d(merged_all_pvals[,2:4],
+              main="P-values",
+              xlab = "Dyslexia",
+              ylab = "Rhythm",
+              zlab = "MA")
+dev.off()
+
+merged_all_pvals_effect = merge(merged_df_dysrhy, MA_rsid_effect, by = "rsID")
+
+pdf(paste0(outDir, "MA_dys_rhyimp_effects_3D.pdf"))
+scatterplot3d(merged_all_effects[,2:4],
+              main="Effects",
+              xlab = "Dyslexia",
+              ylab = "Rhythm",
+              zlab = "MA")
+dev.off()
+
+```
+

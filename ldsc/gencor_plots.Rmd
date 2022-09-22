@@ -1,0 +1,68 @@
+---
+title: "gencor_plots"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+```
+
+```{r read_results}
+gencor_outs = dir("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Clapbeat/LDSC/GenCor", full.names = T, pattern = ".out")
+
+all_rg = data.frame(trait = as.character(),
+                    rg = as.numeric(),
+                    se = as.numeric(),
+                    p = as.numeric())
+
+j = 1
+for (i in gencor_outs) {
+  
+  tmp_row = read.table(i, header = T)
+  all_rg[j,] = tmp_row[1, c(2, 9, 10, 12)]
+  j = j + 1
+  
+}
+
+all_rg = all_rg[-c(9,10,11),]
+
+# fdr for 10 gencor tests
+all_rg$fdr = p.adjust(all_rg$p, method = "fdr")
+
+all_rg$trait = c("Danish Schoolgrade E1",
+                 "Danish Schoolgrade E2",
+                 "Danish Schoolgrade E3",
+                 "Danish Schoolgrade E4",
+                 "Non-word Reading",
+                 "Non-word Repetition",
+                 "Phoneme awareness",
+                 "Performance IQ",
+                 "Spelling",
+                 "Word Reading")
+
+# jeez
+
+all_rg$rg = as.numeric(all_rg$rg)
+all_rg$se = as.numeric(all_rg$se)
+all_rg$p = as.numeric(all_rg$p)
+all_rg$fdr = as.numeric(all_rg$fdr)
+
+```
+
+```{r plot}
+all_rg$trait = factor(all_rg$trait,levels=all_rg$trait)
+
+ggplot(all_rg,
+       aes(x = trait, y = rg)) +
+       geom_errorbar(aes(ymax = rg + se,  ymin = rg - se),
+       position = position_dodge(0.9),width=0) +
+       geom_point(position = position_dodge(0.9), size = 2, colour = "darkgreen") +
+       labs(y = "Genetic Correlation (rg)", x = "Traits") +
+       coord_flip() + ylim(c(-0.5, 0.5)) +
+       geom_hline(yintercept = 0, linetype="dotted", color = "red", size=0.5) +
+       scale_x_discrete(limits = rev(levels(all_rg$trait))) +
+       theme(plot.title = element_text(hjust = 0.5),text=element_text(size=17)) + theme_minimal()
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/rhythm_vs_all_gencor_v2.pdf")
+```

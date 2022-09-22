@@ -1,0 +1,44 @@
+*** Beginning LDSC partitioned heritability...
+Trait: rhythym_dyslexia_MA.sumstats.gz
+Annot: neanDepRegions_hg19.sorted
+Output: /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.neanDepRegions.results
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--h2 /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA.sumstats.gz \
+--ref-ld-chr /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/neanDepRegions_hg19.sorted/neanDepRegions_hg19.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD. \
+--out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.neanDepRegions.results \
+--overlap-annot  \
+--frqfile-chr /data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_frq/1000G.EUR.QC. \
+--w-ld-chr /data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC. \
+--print-coefficients  
+
+Beginning analysis at Tue Mar  8 13:10:09 2022
+Namespace(M=None, annot=None, bfile=None, chisq_max=None, chunk_size=50, cts_bin=None, cts_breaks=None, cts_names=None, extract=None, frqfile=None, frqfile_chr='/data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_frq/1000G.EUR.QC.', h2='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA.sumstats.gz', h2_cts=None, intercept_gencov=None, intercept_h2=None, invert_anyway=False, keep=None, l2=False, ld_wind_cm=None, ld_wind_kb=None, ld_wind_snps=None, maf=None, n_blocks=200, no_check_alleles=False, no_intercept=False, no_print_annot=False, not_M_5_50=False, out='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.neanDepRegions.results', overlap_annot=True, per_allele=False, pickle=False, pop_prev=None, pq_exp=None, print_all_cts=False, print_coefficients=True, print_cov=False, print_delete_vals=False, print_snps=None, ref_ld=None, ref_ld_chr='/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/neanDepRegions_hg19.sorted/neanDepRegions_hg19.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD.', ref_ld_chr_cts=None, return_silly_things=False, rg=None, samp_prev=None, thin_annot=False, two_step=None, w_ld=None, w_ld_chr='/data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC.', yes_really=False)
+Reading summary statistics from /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/rhythym_dyslexia_MA.sumstats.gz ...
+Read summary statistics for 1080503 SNPs.
+Reading reference panel LD Score from /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/neanDepRegions_hg19.sorted/neanDepRegions_hg19.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD.[1-22] ... (ldscore_fromlist)
+Read reference panel LD Scores for 1190321 SNPs.
+Removing partitioned LD Scores with zero variance.
+Reading regression weight LD Score from /data/workspaces/lag/shared_spaces/Resource_DB/LDscores/Phase3/1000G_Phase3_weights_hm3_no_MHC/weights.hm3_noMHC.[1-22] ... (ldscore_fromlist)
+Read regression weight LD Scores for 1187349 SNPs.
+After merging with reference panel LD, 1076605 SNPs remain.
+After merging with regression SNP LD, 1073964 SNPs remain.
+Removed 0 SNPs with chi^2 > 1745.597 (1073964 SNPs remain)
+Total Observed scale h2: 0.0133 (0.0007)
+Categories: L2_0 baseL2_1 Coding_UCSCL2_1 Coding_UCSC.flanking.500L2_1 Conserved_LindbladTohL2_1 Conserved_LindbladToh.flanking.500L2_1 CTCF_HoffmanL2_1 CTCF_Hoffman.flanking.500L2_1 DGF_ENCODEL2_1 DGF_ENCODE.flanking.500L2_1 DHS_peaks_TrynkaL2_1 DHS_TrynkaL2_1 DHS_Trynka.flanking.500L2_1 Enhancer_AnderssonL2_1 Enhancer_Andersson.flanking.500L2_1 Enhancer_HoffmanL2_1 Enhancer_Hoffman.flanking.500L2_1 FetalDHS_TrynkaL2_1 FetalDHS_Trynka.flanking.500L2_1 H3K27ac_HniszL2_1 H3K27ac_Hnisz.flanking.500L2_1 H3K27ac_PGC2L2_1 H3K27ac_PGC2.flanking.500L2_1 H3K4me1_peaks_TrynkaL2_1 H3K4me1_TrynkaL2_1 H3K4me1_Trynka.flanking.500L2_1 H3K4me3_peaks_TrynkaL2_1 H3K4me3_TrynkaL2_1 H3K4me3_Trynka.flanking.500L2_1 H3K9ac_peaks_TrynkaL2_1 H3K9ac_TrynkaL2_1 H3K9ac_Trynka.flanking.500L2_1 Intron_UCSCL2_1 Intron_UCSC.flanking.500L2_1 PromoterFlanking_HoffmanL2_1 PromoterFlanking_Hoffman.flanking.500L2_1 Promoter_UCSCL2_1 Promoter_UCSC.flanking.500L2_1 Repressed_HoffmanL2_1 Repressed_Hoffman.flanking.500L2_1 SuperEnhancer_HniszL2_1 SuperEnhancer_Hnisz.flanking.500L2_1 TFBS_ENCODEL2_1 TFBS_ENCODE.flanking.500L2_1 Transcr_HoffmanL2_1 Transcr_Hoffman.flanking.500L2_1 TSS_HoffmanL2_1 TSS_Hoffman.flanking.500L2_1 UTR_3_UCSCL2_1 UTR_3_UCSC.flanking.500L2_1 UTR_5_UCSCL2_1 UTR_5_UCSC.flanking.500L2_1 WeakEnhancer_HoffmanL2_1 WeakEnhancer_Hoffman.flanking.500L2_1 GERP.NSL2_1 GERP.RSsup4L2_1 MAFbin1L2_1 MAFbin2L2_1 MAFbin3L2_1 MAFbin4L2_1 MAFbin5L2_1 MAFbin6L2_1 MAFbin7L2_1 MAFbin8L2_1 MAFbin9L2_1 MAFbin10L2_1 MAF_Adj_Predicted_Allele_AgeL2_1 MAF_Adj_LLD_AFRL2_1 Recomb_Rate_10kbL2_1 Nucleotide_Diversity_10kbL2_1 Backgrd_Selection_StatL2_1 CpG_Content_50kbL2_1 MAF_Adj_ASMCL2_1 GTEx_eQTL_MaxCPPL2_1 BLUEPRINT_H3K27acQTL_MaxCPPL2_1 BLUEPRINT_H3K4me1QTL_MaxCPPL2_1 BLUEPRINT_DNA_methylation_MaxCPPL2_1 synonymousL2_1 non_synonymousL2_1 Conserved_Vertebrate_phastCons46wayL2_1 Conserved_Vertebrate_phastCons46way.flanking.500L2_1 Conserved_Mammal_phastCons46wayL2_1 Conserved_Mammal_phastCons46way.flanking.500L2_1 Conserved_Primate_phastCons46wayL2_1 Conserved_Primate_phastCons46way.flanking.500L2_1 BivFlnkL2_1 BivFlnk.flanking.500L2_1 Human_Promoter_VillarL2_1 Human_Promoter_Villar.flanking.500L2_1 Human_Enhancer_VillarL2_1 Human_Enhancer_Villar.flanking.500L2_1 Ancient_Sequence_Age_Human_PromoterL2_1 Ancient_Sequence_Age_Human_Promoter.flanking.500L2_1 Ancient_Sequence_Age_Human_EnhancerL2_1 Ancient_Sequence_Age_Human_Enhancer.flanking.500L2_1 Human_Enhancer_Villar_Species_Enhancer_CountL2_1 Human_Promoter_Villar_ExACL2_1 Human_Promoter_Villar_ExAC.flanking.500L2_1
+Lambda GC: 1.4281
+Mean Chi^2: 1.5339
+Intercept: 1.0545 (0.0132)
+Ratio: 0.1022 (0.0247)
+Reading annot matrix from /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/neanDepRegions_hg19.sorted/neanDepRegions_hg19.sorted.,/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/baselineLD/baselineLD.[1-22] ... (annot)
+Results printed to /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/dys_rhy_MA.neanDepRegions.results.results
+Analysis finished at Tue Mar  8 13:18:39 2022
+Total time elapsed: 8.0m:30.21s
+Finished!
