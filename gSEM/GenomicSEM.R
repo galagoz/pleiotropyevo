@@ -19,7 +19,7 @@
 
 library(data.table)
 library(qqman)
-library(devtools)
+#library(devtools)
 #install_github("MichelNivard/GenomicSEM")
 library(GenomicSEM)
 require(stats)
@@ -56,7 +56,7 @@ LDSCoutput_2traits = ldsc(traits, sample.prev, population.prev, LDSCDir, LDSCDir
 load(paste0(outDir, "GenomicSEM_LDSCoutput_dys_rhyimp.RData"))
 
 #----------------------------------------------------------------------------------------------------------
-# 3) Common Factor Model
+# 3) Old Common Factor Model
 #----------------------------------------------------------------------------------------------------------
 
 model = "F1 =~ a*Dyslexia + a*Rhythm_impairment"
@@ -120,7 +120,7 @@ load(paste0(outDir, "GenomicSEM_sumstats_dys_rhyimp.RData"))
 # jobs.
 #----------------------------------------------------------------------------------------------------------
 
-#specify the model
+# Specify the Common Pathways Model
 model = "F1 =~ 1*Dyslexia + 1*Rhythm_impairment
 F1 ~ SNP
 Dyslexia ~~ a*Dyslexia
@@ -128,7 +128,7 @@ Rhythm_impairment ~~ a*Rhythm_impairment"
 
 #run the multivariate GWAS using parallel processing
 CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
-                             SNPs = dys_and_rhyimp_sumstats,
+                             SNPs = dys_and_rhyimp_sumstats[1:10],
                              estimation = "DWLS",
                              model = model,
                              printwarn = TRUE,
@@ -185,7 +185,7 @@ dys_rhy_Nweighted = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/re
 #----------------------------------------------------------------------------------------------------------
 # 6) Run a follow-up model to obtain heterogeneity (Q) index.
 #----------------------------------------------------------------------------------------------------------
-#Step 1a: specify the Step 1 (Common Pathways) Model
+#Step 1a: specify the Independent Pathways Model
 model2 <- "F1 =~ 1*Dyslexia + 1*Rhythm_impairment 
 Dyslexia + Rhythm_impairment ~ SNP
 Dyslexia ~~ a*Dyslexia
