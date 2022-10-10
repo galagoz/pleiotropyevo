@@ -1,6 +1,8 @@
 ---
 title: "globularity_summary"
-output: html_document
+author: "Gokberk Alagoz, L&G Dept., MPI for Psycholinguistics"
+date: "`r Sys.Date()`"
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}

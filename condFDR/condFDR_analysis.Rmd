@@ -1,11 +1,8 @@
 ---
 title: "condFDR_analysis"
-author: "Gokberk Alagoz"
-date: "November 11, 2021"
-output:
-  word_document: default
-  pdf_document: default
-  html_document: default
+author: "Gokberk Alagoz, L&G Dept., MPI for Psycholinguistics"
+date: "`r Sys.Date()`"
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
