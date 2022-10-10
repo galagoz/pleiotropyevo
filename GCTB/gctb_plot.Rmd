@@ -1,6 +1,6 @@
 ---
 title: "plot_gctb"
-output: html_document
+output: pdf_document
 ---
 
 ```{r}

@@ -1,0 +1,46 @@
+---
+title: "gctb_QC"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+```
+
+## 
+
+```{r cars}
+genSEM4gctb = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_dys_rhyimp_v2_4gctb_v2.ma", header = T)
+gwama4gctb = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA/dys_aysnch_NGWAMA_results4GCTB.ma", header = T)
+```
+
+## 
+
+```{r pressure, echo=FALSE}
+
+length(genSEM4gctb$N)
+
+hist(genSEM4gctb[genSEM4gctb$N>1000000,]$N)
+length(genSEM4gctb[genSEM4gctb$N>1000000,]$N)
+
+hist(genSEM4gctb[genSEM4gctb$N>1700000,]$N)
+length(genSEM4gctb[genSEM4gctb$N>1700000,]$N)
+
+fwrite(genSEM4gctb[genSEM4gctb$N>1700000,], 
+       "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_dys_rhyimp_v2_4gctb_v3.ma", quote = F, sep = " ")
+
+hist(gwama4gctb$N)
+
+hist(gwama4gctb$BETA)
+hist(as.numeric(genSEM4gctb$est))
+
+hist(gwama4gctb$MAF)
+hist(as.numeric(genSEM4gctb$MAF))
+
+hist(gwama4gctb$SE)
+hist(as.numeric(genSEM4gctb$SE))
+
+plot(gwama4gctb$MAF, gwama4gctb$BETA)
+
+```
