@@ -86,6 +86,8 @@ awk 'OFS="\t" {print $1, $2, $3, $4}' epdnew_hg38ToHg19_promoters.bed > tmp && m
 awk '{split($4, a , "_"); $4=a[1]; print $0}' epdnew_hg38ToHg19_promoters.bed > epdnew_hg38ToHg19_promoters_v2.bed
 
 # FINAL NOTE BEFORE THE HOLIDAY: The promoter data seems like it's not suitable for adding to bed files, because it has point-coordinates.
-# So maybe use the genes-only bed files or alternatively add eQTL data to bed files. Once you're back, decide this quickly and run MAGMA.
+# So maybe use the genes-only bed files or alternatively add eQTL data to bed files. Once you're back, decide this quickly and run MAGMA.i
+# -> NOTE AFTER HOLIDAY: You already included +-1kb of gene coordinates from ENSEMBL, so you probably already cover promoters,
+# I don't think you need to add the promoter info separately (you can ask Else about this once she is back to make sure).
 
 # When gene boundary+promoter annotation files are ready, feed them into MAGMA gene-set analysis.
