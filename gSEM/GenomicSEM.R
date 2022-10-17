@@ -22,6 +22,7 @@ library(qqman)
 #library(devtools)
 #install_github("MichelNivard/GenomicSEM")
 library(GenomicSEM)
+library(lavaan)
 require(stats)
 require(Matrix)
 
@@ -59,8 +60,8 @@ load(paste0(outDir, "GenomicSEM_LDSCoutput_dys_rhyimp.RData"))
 # 3) Old Common Factor Model
 #----------------------------------------------------------------------------------------------------------
 
-model = "F1 =~ a*Dyslexia + a*Rhythm_impairment"
-#F1 ~~ NA*F1
+model = "F1 =~ a*Dyslexia + a*Rhythm_impairment
+F1 ~ SNP"
 #run the multivariate GWAS using parallel processing
 CommonFactor2_DWLS = usermodel(LDSCoutput_2traits, estimation="DWLS", model = model)
 
@@ -128,7 +129,7 @@ Rhythm_impairment ~~ a*Rhythm_impairment"
 
 #run the multivariate GWAS using parallel processing
 CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
-                             SNPs = dys_and_rhyimp_sumstats[1:10],
+                             SNPs = dys_and_rhyimp_sumstats,
                              estimation = "DWLS",
                              model = model,
                              printwarn = TRUE,
@@ -142,7 +143,7 @@ CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
                              smooth_check=FALSE)
 
 ##optional command to save the multivariate GWAS results in case you want to use it in a later R session.
-#save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2.RData"))
+#save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.RData"))
 # to load multivarGWAS results
 load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2.RData"))
 
