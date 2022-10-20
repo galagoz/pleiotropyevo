@@ -1,0 +1,15 @@
+*********************************************************************
+* LD Score Regression (LDSC)
+* Version 1.0.1
+* (C) 2014-2019 Brendan Bulik-Sullivan and Hilary Finucane
+* Broad Institute of MIT and Harvard / MIT Department of Mathematics
+* GNU General Public License v3
+*********************************************************************
+Call: 
+./ldsc.py \
+--h2 /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/munged/GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.sumstats.gz \
+--ref-ld-chr /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/eur_w_ld_chr/ 
+
+Beginning analysis at Wed Oct 19 14:36:30 2022
+Analysis finished at Wed Oct 19 14:36:30 2022
+Total time elapsed: 0.0s

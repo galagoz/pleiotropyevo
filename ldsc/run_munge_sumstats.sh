@@ -57,11 +57,11 @@ MA="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA"
 
 #-----Genomic SEM
 munge_sumstats.py \
-	--sumstats GenomicSEM_multivarGWAS_dys_rhyimp_v2_forMunge.tab \
+	--sumstats ${inDir}/GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun_forMunge.tab \
 	--signed-sumstats Z_Estimate,0 \
 	--p Pval_Estimate \
 	--frq MAF \
-	--out GenomicSEM_multivarGWAS_dys_rhyimp_v2 \
+	--out ${inDir}/munged/GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun \
 	--merge-alleles /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/w_hm3.snplist \
 	--chunksize 500000
 

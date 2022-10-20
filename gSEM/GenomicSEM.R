@@ -145,7 +145,9 @@ CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
 ##optional command to save the multivariate GWAS results in case you want to use it in a later R session.
 #save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.RData"))
 # to load multivarGWAS results
-load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2.RData"))
+load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.RData"))
+#fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.tab"), 
+#       sep = "\t",  row.names = FALSE, col.names = TRUE)
 
 #----------------------------------------------------------------------------------------------------------
 # 5.5) Calculate sample size for factors. 
@@ -162,7 +164,7 @@ load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2.RData"))
 N_hat_F1<-mean(1/((2*CorrelatedFactors[[1]]$MAF*(1-CorrelatedFactors[[1]]$MAF))*CorrelatedFactors[[1]]$SE^2), na.rm = T)
 CorrelatedFactors[[1]]$N = round(N_hat_F1)
 
-fwrite(CorrelatedFactors[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_rhyimp_v2_forMunge.tab"), 
+fwrite(CorrelatedFactors[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun_forMunge.tab"), 
        sep = "\t",  row.names = FALSE, col.names = TRUE)
 
 ####Make a Miamiplot w/CommonFactor and GWAMA results#######################
@@ -197,7 +199,7 @@ Rhythm_impairment ~~ a*Rhythm_impairment"
 
 #Step 2b: run the Step 2 Model using parallel processing
 CorrelatedFactors2 <- userGWAS(covstruc = LDSCoutput_2traits,
-                               SNPs = dys_and_rhyimp_sumstats[1000000:1000010,],
+                               SNPs = dys_and_rhyimp_sumstats,
                                estimation = "DWLS", 
                                model = model2, 
                                printwarn = TRUE, 

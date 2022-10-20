@@ -4,6 +4,8 @@
 # meta-analysis results.
 
 module load gctb/2.02
+genSEM="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/"
+outDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GCTB/"
 
 # Run SBayesS on GWAMA, dys and rhy_imp sumstats
 
@@ -29,6 +31,6 @@ module load gctb/2.02
 
 gctb --sbayes S \
      --mldm /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/ukbEURu_hm3_shrunk_sparse/ukbEURu_hm3_sparse_mldm_list.txt \
-     --gwas-summary /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_dys_rhyimp_4gctb.ma \
+     --gwas-summary ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun_4gctb.ma \
      --burn-in 2000 \
-     --out rhyimp_dys_genomicSEM > rhyimp_dys_genomicSEM.log 2>&1
+     --out ${outDir}rhyimp_dys_v2_secondrun_genomicSEM > ${outDir}rhyimp_dys_v2_secondrun_genomicSEM.log 2>&1
