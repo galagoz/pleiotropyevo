@@ -39,17 +39,17 @@ sumstats = c(paste0(inDir, "dyslexia_reformatted_forModelAveraged3.txt"), paste0
 trait_names = c("Dyslexia","Rhythm_impairment")
 sample_sizes = c(169510, 187407) # these are effective population sizes, calculated as 4.N_cases.(1-N_cases/N_total)
 
-munge(sumstats, hm3, trait.names = trait_names, N = sample_sizes)
+#munge(sumstats, hm3, trait.names = trait_names, N = sample_sizes)
 
 #----------------------------------------------------------------------------------------------------------
 # 2) Run multivariable LDSC
 #----------------------------------------------------------------------------------------------------------
 
-traits = c("Dyslexia.sumstats.gz", "Rhythm_impairment.sumstats.gz")
+traits = c("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/dyslexia.sumstats.gz", "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/flippedZRhythym.sumstats.gz")
 sample.prev = c(0.045, 0.085)
 population.prev = c(0.05, 0.0475)
 trait_names = c("Dyslexia", "Rhythm_impairment")
-LDSCoutput_2traits = ldsc(traits, sample.prev, population.prev, LDSCDir, LDSCDir, trait_names)
+#LDSCoutput_2traits = ldsc(traits, sample.prev, population.prev, LDSCDir, LDSCDir, trait_names)
 
 ##optional command to save the ldsc output in case you want to use it in a later R session. 
 #save(LDSCoutput_2traits, file = paste0(outDir, "GenomicSEM_LDSCoutput_dys_rhyimp.RData"))
@@ -127,7 +127,7 @@ F1 ~ SNP
 Dyslexia ~~ a*Dyslexia
 Rhythm_impairment ~~ a*Rhythm_impairment"
 
-#run the multivariate GWAS using parallel processing
+# Run the multivariate GWAS using parallel processing
 CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
                              SNPs = dys_and_rhyimp_sumstats,
                              estimation = "DWLS",
@@ -142,10 +142,10 @@ CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
                              MPI=FALSE,
                              smooth_check=FALSE)
 
-##optional command to save the multivariate GWAS results in case you want to use it in a later R session.
-#save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.RData"))
+## optional command to save the multivariate GWAS results in case you want to use it in a later R session.
+save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2_thirdrun.RData"))
 # to load multivarGWAS results
-load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.RData"))
+load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_v2_thirdrun.RData"))
 #fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun.tab"), 
 #       sep = "\t",  row.names = FALSE, col.names = TRUE)
 
