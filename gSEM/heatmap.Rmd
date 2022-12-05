@@ -1,0 +1,64 @@
+---
+title: "heatmap"
+author: "Gokberk Alagoz, L&G Dept., MPI for Psycholinguistics"
+date: "`r Sys.Date()`"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ComplexHeatmap)
+library(circlize)
+```
+
+```{r readAndPrepData}
+
+outDir = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/snp_lookup"
+
+gwas_data = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/snp_lookup/GenomicRiskLoci_allTraits.txt", header = T)
+gwas_data$Z = gwas_data$Effect/gwas_data$SE
+gwas_data = gwas_data[order(gwas_data$SNP),]
+
+# inverse normal transform Z scores for visualization purpose
+gwas_data$Z[gwas_data$Trait=="MA"] = qnorm((rank(gwas_data$Z[gwas_data$Trait=="MA"],na.last="keep")-0.5)/sum(!is.na(gwas_data$Z[gwas_data$Trait=="MA"])))
+gwas_data$Z[gwas_data$Trait=="RhyImp"] = qnorm((rank(gwas_data$Z[gwas_data$Trait=="RhyImp"],na.last="keep")-0.5)/sum(!is.na(gwas_data$Z[gwas_data$Trait=="RhyImp"])))
+gwas_data$Z[gwas_data$Trait=="Dys"] = qnorm((rank(gwas_data$Z[gwas_data$Trait=="Dys"],na.last="keep")-0.5)/sum(!is.na(gwas_data$Z[gwas_data$Trait=="Dys"])))
+
+df4heatmap = data.frame(SNP = gwas_data$SNP[gwas_data$Trait=="MA"],
+                        Znorm_MA = gwas_data$Z[gwas_data$Trait=="MA"],
+                        Znorm_RhyImp = gwas_data$Z[gwas_data$Trait=="RhyImp"],
+                        Znorm_Dys = gwas_data$Z[gwas_data$Trait=="Dys"])
+
+m4heatmap = as.matrix(df4heatmap[,c(2,3,4)])
+rownames(m4heatmap) = df4heatmap$SNP
+colnames(m4heatmap) = c("MA", "Rhythm_impairment", "Dyslexia")
+
+```
+
+```{r QC}
+
+gwas_data_weirdSNPs = df4heatmap %>% 
+                          filter(Znorm_MA > 0 & Znorm_RhyImp < 0 & Znorm_Dys < 0)
+
+#write.table(gwas_data_weirdSNPs$SNP,
+#            paste0(outDir, "/weirdSNPlist.txt"),
+#            quote = F, row.names = F, col.names = F)
+
+```
+
+
+```{r heatmap}
+
+myPalette <- c("royalblue3", "ivory", "orangered3")
+myRamp <- colorRamp2(c(-2, 0, 2), myPalette)
+
+#pdf(file = paste0(outDir, "/GWAShits_GWAMA_heatmap_Znormalized.pdf"), width = 12, height = 8)
+Heatmap(t(m4heatmap), name = "Z-score", col = myRamp, cluster_rows = F)
+#dev.off()
+
+```
+
+

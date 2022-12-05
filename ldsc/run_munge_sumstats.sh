@@ -1,9 +1,6 @@
-#$ -N munge_sumstats
-#$ -cwd
-#$ -q single15.q
-#$ -S /bin/bash
-
-# Gokberk Alagoz, March 2022 - updated September 2022
+#!/bin/bash
+#
+# Gokberk Alagoz, March 2022 - updated Nov 2022
 
 #-----Munge Sumstats-----
 
@@ -11,57 +8,56 @@
 # munge_sumstats.py is from github.com/bulik/ldsc
 # Based on the tutorial at github.com/bulik/ldsc/wiki/Heritability-and-Genetic-Correlation
 # After final updates on the grid, it's easier to run munge on lux13. Follow the steps 
-# below and then run munge. ALSO, don't forget to reformat your sumstats before munging,
-# get rid off all the unnecessary columns to avoid weird errors.
+# below and then run munge.
 
-module purge
-module load miniconda/3.2021.10 ldsc/v1.0.1
-conda activate ldsc
+#module purge
+#module load miniconda/3.2021.10 ldsc/v1.0.1
+#conda activate ldsc
 
 #-----Variables-----
-# $input - summary statistic file
-# $output - outfile_name
-
-ldsc="/home/gokala/programs/ldsc"
 hapmap="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/w_hm3.snplist"
-inDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM"
-sumstatsList="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/sumstats_toMunge.txt"
-MA="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA"
+inDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data"
+genSEM="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM"
 
-# mkdir ${inDir}/munged
+# 1) Rhythym impairment
 
-#-----Rhythym
+#munge_sumstats.py \
+# --sumstats ${inDir}/rhythm_impairment_lambdaGCcorrected_wtotalNandOR.dat \
+# --snp snp.id \
+# --a1 effect_allele \
+# --a2 ref_allele \
+# --frq maf \
+# --N-cas-col im.num.1 \
+# --N-con-col im.num.0 \
+# --p pvalue \
+# --signed-sumstats OR,1 \
+# --merge-alleles ${hapmap} \
+# --out ${inDir}/munged/rhythm_impairment \
+# --chunksize 500000
 
-#${ldsc}/munge_sumstats.py \
-#--sumstats ${inDir}/rhythym_reformatted_forNweighted6.txt \
-#--signed-sumstats Z,0 \
-#--out ${inDir}/munged/flippedZRhythym \
-#--merge-alleles ${hapmap}
+# 2) Dyslexia
 
-#-----Dyslexia
-
-# ${ldsc}/munge_sumstats.py \
-# --sumstats ${inDir}/dyslexia_reformatted_forModelAveraged_forMunge.tab \
-# --signed-sumstats Z,0 \
+#munge_sumstats.py \
+# --sumstats ${inDir}/dyslexia.filtered.2_lambdaGCcorrected_wtotalN.dat \
+# --snp rsid \
+# --a1 alleleB \
+# --a2 alleleA \
+# --N-cas-col im.num.1 \
+# --N-con-col im.num.0 \
+# --p pvalue \
+# --signed-sumstats OR,1 \
+# --merge-alleles ${hapmap} \
 # --out ${inDir}/munged/dyslexia \
-# --merge-alleles ${hapmap}
+# --chunksize 500000
 
-#-----GWAMA
+# 3) Genomic SEM common factor results
 
-# ${ldsc}/munge_sumstats.py \
-# --sumstats ${MA}/NGWAMA_beatFlippedZ.N_weighted_GWAMA.results.txt \
-# --frq MAF \
-# --N-col N_obs \
-# --out ${inDir}/munged/flippedZRhythym_dyslexia_MA \
-# --merge-alleles ${hapmap}
-
-#-----Genomic SEM
 munge_sumstats.py \
-	--sumstats ${inDir}/GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun_forMunge.tab \
+	--sumstats ${genSEM}/GenomicSEM_multivarGWAS_dys_rhyimp_lambdaGCcorrected_forMunge.tab \
 	--signed-sumstats Z_Estimate,0 \
 	--p Pval_Estimate \
 	--frq MAF \
-	--out ${inDir}/munged/GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun \
+	--out ${inDir}/munged/GenomicSEM_multivarGWAS_dys_rhyimp \
 	--merge-alleles /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/w_hm3.snplist \
 	--chunksize 500000
 

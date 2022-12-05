@@ -22,14 +22,16 @@ This tutorial will show you how you can create create a sampling correlation mat
 #### 2. Add all the output to a single file (in bash)
 
 ```{bash, eval=F}
-FILES=($(ls *_rg.log))		  # assuming the output format is [phenotype]_rg.log
+#!/bin/bash
+#
+FILES=($(ls *.log))		  # assuming the output format is [phenotype].log
 N=$(echo ${#FILES[@]})  		# and that all combinations of penotypes have been analysed
 for I in ${FILES[@]}; do
-        PHEN=$(echo $I | sed 's/_rg\.log//')
-        
+        PHEN=$(echo $I | sed 's/.log//')
+
         # subset log files to relevant output
         tail -n$(($N+4)) $I | head -$((N+1)) > $PHEN.rg 	# (adapt as necessary)
-        
+
         # add to single data set
         if [[ $I == ${FILES[0]} ]]; then
         	cat $PHEN.rg > all.rg		# only including the header for the first phenotypes
@@ -37,15 +39,17 @@ for I in ${FILES[@]}; do
         	cat $PHEN.rg | sed '1d' >> all.rg
         fi
 done
+
 ```
 
 #### 3. Extract the intercepts and create a sampling correlation matrix (in R)
 
 ```{r, eval=F}
 
-scor = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gencor/gencor4LAVA/all.rg",header=T) # read in
+scor = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gencor/all.rg",
+                  header=T) # read in
 scor = scor[,c("p1","p2","gcov_int")]             # retain key headers
-scor$p1 = gsub(".sumstats.gz","",scor$p1)   # assuming the munged files have format [phenotype]_munge.sumstats.gz
+scor$p1 = gsub(".sumstats.gz","",scor$p1)   # assuming the munged files have format [phenotype].sumstats.gz
 scor$p2 = gsub(".sumstats.gz","",scor$p2)   # (adapt as necessary)
 phen = unique(scor$p1)                  # obtain list of all phenotypes (assuming all combinations have been analysed)
 n = length(phen)

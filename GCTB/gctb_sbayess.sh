@@ -17,20 +17,20 @@ outDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GCTB/"
 
 #gctb --sbayes S \
 #     --ldm /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/ukbEURu_imp_v3_HM3_n50k.chisq10.ldm.sparse \
-#     --gwas-summary /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythm_impairment_4gctb.ma \
+#     --gwas-summary /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythm_impairment_forGCTB.ma \
 #     --burn-in 2000 \
-#     --out rhythm_impairment > rhythm_impairment.log 2>&1
+#     --out ${outDir}rhythm_impairment > ${outDir}rhythm_impairment.log 2>&1
 
 #gctb --sbayes S \
 #     --ldm /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/ukbEURu_imp_v3_HM3_n50k.chisq10.ldm.sparse \
-#     --gwas-summary /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia.filtered.2_4gctb.ma \
+#     --gwas-summary /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_forGCTB.ma \
 #     --burn-in 2000 \
-#     --out dyslexia > dyslexia.log 2>&1
+#     --out ${outDir}dyslexia > ${outDir}dyslexia.log 2>&1
 
 # Run SBayesS on Genomic SEM Common Pathways sumstat (dys and rhy_imp meta-analysis results)
 
 gctb --sbayes S \
      --mldm /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/ukbEURu_hm3_shrunk_sparse/ukbEURu_hm3_sparse_mldm_list.txt \
-     --gwas-summary ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_v2_secondrun_4gctb.ma \
+     --gwas-summary ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB.ma \
      --burn-in 2000 \
-     --out ${outDir}rhyimp_dys_v2_secondrun_genomicSEM > ${outDir}rhyimp_dys_v2_secondrun_genomicSEM.log 2>&1
+     --out ${outDir}rhyimp_dys_genomicSEM_CPM > ${outDir}rhyimp_dys_genomicSEM_CPM.log 2>&1

@@ -69,7 +69,7 @@ run.univ(locus)
 ```
 
 ```{bash}
-Rscript /data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/Dyslexia/dyslexiaevol/clap-beat_dyslexia/LAVA/lava_script.R "/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/fetal_hge_hg19.merged.sorted.bed" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input.info.txt" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/sample.overlap.txt" "dyslexia;rhythm_imp" "dyslexia.rhythm_imp"
+Rscript /data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/LAVA/lava_script.R "/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/fetal_hge_hg19.merged.sorted.bed" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input.info.txt" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/sample.overlap.txt" "dyslexia;rhythm_impairment" "dyslexia.rhythm_impairment"
 ```
 
 ```{r plot}

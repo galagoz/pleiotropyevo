@@ -22,7 +22,7 @@ ${programs}magma --annotate --snp-loc ${inDir}snp_loc_input.tab --gene-loc ${inD
 
 # 2) Gene analysis (using SNP p-values)
 
-${programs}magma --bfile ${genotype_f}g1000_eur --pval ${inDir}pval_file_4magma.tab ncol=N --gene-annot ${outDir}dys_rhyimp_genomicSEM.genes.annot --out ${outDir}dys_rhyimp_genomicSEM
+${programs}magma --bfile ${genotype_f}g1000_eur --pval ${inDir}pval_file4magma.tab ncol=N --gene-annot ${outDir}dys_rhyimp_genomicSEM.genes.annot --out ${outDir}dys_rhyimp_genomicSEM
 
 # 3) Gene-set analysis
 

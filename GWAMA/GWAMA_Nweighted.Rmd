@@ -17,8 +17,8 @@ library(qqman)
 ```{r readData}
 
 dat<-vector("list",2)
-dat[[1]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_reformatted_forNweighted3.txt",showProgress=F,data.table=F)
-dat[[2]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythym_reformatted_forNweighted5.txt",showProgress=F,data.table=F)
+dat[[1]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_forNweighted.txt",showProgress=F,data.table=F)
+dat[[2]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythm_impairment_forNweighted.txt",showProgress=F,data.table=F)
 
 # Convert X to 23
 dat[[1]]$CHR[dat[[1]]$CHR == "X"] = 23
@@ -34,55 +34,63 @@ dat[[2]]$CHR = as.integer(dat[[2]]$CHR)
 
 CTI <- as.matrix(read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gencor/CTI_matrix.txt", header =T))
 
-h2list <- c(0.1465, 0.1459)
+h2list <- c(0.0951, 0.0932)
 
 ```
 
 ## Run GWAMA
 
 ```{r runGWAMA-Nweighted, echo=FALSE}
-multivariate_GWAMA(x=dat,cov_Z=CTI,h2=h2list,out="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA",name="NGWAMA_beatFlippedZ",output_gz=F,check_columns=F)
+
+multivariate_GWAMA(x = dat, 
+                   cov_Z = CTI,
+                   h2 = h2list,
+                   out = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA", 
+                   name = "dyslexia_rhythmImpairment", 
+                   output_gz = F, 
+                   check_columns = F)
+
 ```
 
 ## Plot
 
 ```{r miamiplot}
 
-dys_rhy_commonSig = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/CPASSOC/SHom_Dys_flippedZRhy_results.txt")
-dys_rhy_Nweighted = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA/NGWAMA_beatFlippedZ.N_weighted_GWAMA.results.txt")
+dys_rhy_commonSig = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/CPASSOC/SHom_Dys_RhyImp_results.txt")
+dys_rhy_Nweighted = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA/dyslexia_rhythmImpairment.N_weighted_GWAMA.results.txt")
 
 png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/CPASSOC/Dys_Rhy_GWAMA-CPASSOC_Miamiplot_yaxisfixed9.png", type="cairo", width=2000, height=500)
 par(mfrow=c(2,1))
 par(mar=c(0,5,5,3))
 manhattan(dys_rhy_commonSig, ylim = c(0,25), chr = "CHR", bp = "BP", p = "p.shom", snp = "Row.names", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
 par(mar=c(5,5,1,3))
-manhattan(dys_rhy_Nweighted, ylim = c(25,0), chr = "CHR", bp = "BP", p = "PVAL", snp = "SNP", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
+manhattan(dys_rhy_Nweighted, ylim = c(25,0), chr = "CHR", bp = "BP", p = "PVAL", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
 dev.off()
 
 # QQplot and Manhattan plot only for GWAMA results
 
-png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA/Dys_Rhyasync_GWAMA_QQplot2.png", type="cairo")
+png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA/Dys_RhyImp_GWAMA_QQplot.png", type="cairo")
 qq(dys_rhy_Nweighted$PVAL)
 dev.off()
 
-png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA/Dys_Rhyasync_GWAMA_Manhattan2.png", type="cairo", width = 2000 , height = 500)
+png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA/Dys_RhyImp_GWAMA_Manhattan.png", type="cairo", width = 2000 , height = 500)
 manhattan(dys_rhy_Nweighted, ylim = c(0,25), chr = "CHR", bp = "BP", p = "PVAL", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
 dev.off()
 
 ```
 
 ```{r manhattans}
-dyslexia_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_reformatted_forNweighted3.txt",showProgress=F,data.table=F)
-rhythm_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythym_reformatted_forNweighted5.txt",showProgress=F,data.table=F)
+dyslexia_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_forNweighted.txt",showProgress=F,data.table=F)
+rhythm_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythm_impairment_forNweighted.txt",showProgress=F,data.table=F)
 
 dyslexia_sumstats$CHR[dyslexia_sumstats$CHR == "X"] = 23
 rhythm_sumstats$CHR[rhythm_sumstats$CHR == "X"] = 23
 dyslexia_sumstats$CHR = as.integer(dyslexia_sumstats$CHR)
 rhythm_sumstats$CHR = as.integer(rhythm_sumstats$CHR)
 
-png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/MA/Dys_Rhy_GWAMA_Manhattans_v2.png", type="cairo", width=1000, height=750)
+png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA/Dys&RhyImp&GWAMA_Manhattans.png", type="cairo", width=1000, height=750)
 par(mfrow=c(3,1))
-manhattan(dys_rhy_Nweighted, ylim = c(0,25), chr = "CHR", bp = "BP", p = "PVAL", snp = "SNP", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+manhattan(dys_rhy_Nweighted, ylim = c(0,25), chr = "CHR", bp = "BP", p = "PVAL", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
 manhattan(dyslexia_sumstats, ylim = c(0,25), chr = "CHR", bp = "BP", p = "P", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
 manhattan(rhythm_sumstats, ylim = c(0,25), chr = "CHR", bp = "BP", p = "P", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
 dev.off()

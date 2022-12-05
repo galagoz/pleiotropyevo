@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 #
 # Gokberk Alagoz - 19.05.22
 #
