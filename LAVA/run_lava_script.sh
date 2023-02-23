@@ -2,11 +2,12 @@
 #
 # This script will run LAVA for all relevant annotations.
 #
-# Gokberk Alagoz, 29 June 2022 - last updated Nov 2022
+# Gokberk Alagoz, 29 June 2022 - last updated Feb 2023
 
 inputDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/"
 refpanel_1kgp3="/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr"
 bedDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/"
+allGenPartitioned="/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_part_genome/"
 outDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/"
 inputInfo="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/input.info.txt"
 sampleOverlap="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/sample.overlap.txt"
@@ -14,7 +15,7 @@ phenos="dyslexia-rhythm_impairment"
 
 mkdir ${outDir}/scripts
 
-for annot in ${bedDir}*.bed; do
+for annot in ${allGenPartitioned}*.bed; do
 
 	tmp_annot=$(basename "$annot")
 	echo $tmp_annot

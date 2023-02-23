@@ -8,6 +8,7 @@ output: rmarkdown::github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(data.table)
 ```
 
 ## Load Genomic SEM output files
@@ -85,5 +86,10 @@ hist(CorrelatedFactors2_v2_QchisqPvalFiltered$CHR)
 
 plot(CorrelatedFactors2_v2_QchisqPvalFiltered$est[3:nrow(CorrelatedFactors2_v2_QchisqPvalFiltered)], CorrelatedFactors2_v2_QchisqPvalFiltered$Q_chisq_pval[3:nrow(CorrelatedFactors2_v2_QchisqPvalFiltered)])
 
+```
+
+```{r}
+gensem = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_dys_rhyimp_forEvo.txt", header = T)
+phylop= 
 ```
 

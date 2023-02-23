@@ -8,63 +8,202 @@ output: rmarkdown::github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(ggplot2)
+library(corrplot)
+library(fclust)
 ```
 
 ```{r read_results}
-gencor_outs = dir("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Clapbeat/LDSC/GenCor", full.names = T, pattern = ".out")
+# Read gencor results of rhythm vs. dyslexia, genlang and danish school grades traits
+gencor_out = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gencor/rhythm_gencors/extracted/all_gencors.tab", header = T)
 
-all_rg = data.frame(trait = as.character(),
-                    rg = as.numeric(),
-                    se = as.numeric(),
-                    p = as.numeric())
+# all_rg = data.frame(trait = as.character(),
+#                     rg = as.numeric(),
+#                     se = as.numeric(),
+#                     p = as.numeric())
+# 
+# j = 1
+# for (i in gencor_outs) {
+#   
+#   tmp_row = read.table(i, header = T)
+#   all_rg[j,] = tmp_row[1, c(2, 9, 10, 12)]
+#   j = j + 1
+#   
+# }
+# 
+# all_rg = all_rg[-c(9,10,11),]
 
-j = 1
-for (i in gencor_outs) {
-  
-  tmp_row = read.table(i, header = T)
-  all_rg[j,] = tmp_row[1, c(2, 9, 10, 12)]
-  j = j + 1
-  
-}
+# get fdr corrected pvals
+gencor_out$fdr = p.adjust(gencor_out$P, method = "fdr")
 
-all_rg = all_rg[-c(9,10,11),]
+gencor_out$trait_names = c("Dyslexia",
+                           "Non-word Reading",
+                           "Non-word Repetition",
+                           "Phoneme Awareness",
+                           "Non-verbal IQ",
+                           "Spelling",
+                           "Word Reading",
+                           "Overall school performance",
+                           "Language better than maths",
+                           "Oral exam better than written",
+                           "Danish better than English")
 
-# fdr for 10 gencor tests
-all_rg$fdr = p.adjust(all_rg$p, method = "fdr")
+# make these columns numeric for convenience
+gencor_out$Rg = as.numeric(gencor_out$Rg)
+gencor_out$SE = as.numeric(gencor_out$SE)
+gencor_out$P = as.numeric(gencor_out$P)
+gencor_out$fdr = as.numeric(gencor_out$fdr)
 
-all_rg$trait = c("Danish Schoolgrade E1",
-                 "Danish Schoolgrade E2",
-                 "Danish Schoolgrade E3",
-                 "Danish Schoolgrade E4",
-                 "Non-word Reading",
-                 "Non-word Repetition",
-                 "Phoneme awareness",
-                 "Performance IQ",
-                 "Spelling",
-                 "Word Reading")
+################################################################################
 
-# jeez
+# read external sumstat (psychiatric and UKB traits) gencor results
+ext_gencor = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gencor/external_sumstats/extracted/all_gencors.txt", header = T, fill = T)
+ext_traitsum = read.csv2("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/external_sumstats/sumstats_summary_v2.csv", header = F, sep = "\t")
+colnames(ext_traitsum) = c("category", "trait", "T1")
 
-all_rg$rg = as.numeric(all_rg$rg)
-all_rg$se = as.numeric(all_rg$se)
-all_rg$p = as.numeric(all_rg$p)
-all_rg$fdr = as.numeric(all_rg$fdr)
+# remove R49 (voice disturbances) from
+# data frame.
+ext_gencor = ext_gencor[ext_gencor$Rg!="Genetic", ]
+# remove duplicate rows
+ext_gencor = ext_gencor[!duplicated(ext_gencor), ]
 
 ```
 
-```{r plot}
-all_rg$trait = factor(all_rg$trait,levels=all_rg$trait)
+```{r plotRhythmGencors}
 
-ggplot(all_rg,
-       aes(x = trait, y = rg)) +
-       geom_errorbar(aes(ymax = rg + se,  ymin = rg - se),
+gencor_out$trait_names = factor(gencor_out$trait_names,levels=gencor_out$trait_names)
+
+gencor_out$sig = ifelse(gencor_out$P < 0.05,'green', 'black')
+
+ggplot(gencor_out,
+       aes(x = trait_names, y = Rg)) +
+       geom_errorbar(aes(ymax = Rg + SE,  ymin = Rg - SE),
        position = position_dodge(0.9),width=0) +
-       geom_point(position = position_dodge(0.9), size = 2, colour = "darkgreen") +
-       labs(y = "Genetic Correlation (rg)", x = "Traits") +
+       geom_point(position = position_dodge(0.9), size = 2, colour = gencor_out$sig) +
+       labs(y = "Genetic Correlation (Rg)", x = "Traits") +
        coord_flip() + ylim(c(-0.5, 0.5)) +
        geom_hline(yintercept = 0, linetype="dotted", color = "red", size=0.5) +
-       scale_x_discrete(limits = rev(levels(all_rg$trait))) +
-       theme(plot.title = element_text(hjust = 0.5),text=element_text(size=17)) + theme_minimal()
+       scale_x_discrete(limits = rev(levels(gencor_out$trait_names))) +
+       theme(plot.title = element_text(hjust = 0.5), text=element_text(size=17)) + theme_minimal()
 
-ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/rhythm_vs_all_gencor_v2.pdf")
+#ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/rhythm_vs_dys_genlang_danish_gencor.pdf")
 ```
+
+```{r plotExternalGencors}
+
+ext_gencor$T1 = unlist(sapply(strsplit(ext_gencor$T1, split = "\\."), `[`, 1))
+ext_gencor$T2 = unlist(sapply(strsplit(ext_gencor$T2, split = "\\."), `[`, 1))
+
+ext_gencor = ext_gencor[order(ext_gencor$T1), ]
+
+# ext_merged = merge(ext_traitsum, ext_gencor, by = "T1")
+
+# ext_merged = ext_merged[with(ext_merged, order(trait, Rg)), ] #TODO FIX THIS!
+
+cor_mat = data.frame(matrix(nrow = length(levels(as.factor(ext_gencor$T1))),
+                            ncol = length(levels(as.factor(ext_gencor$T1)))))
+
+colnames(cor_mat) = levels(as.factor(ext_gencor$T1))
+rownames(cor_mat) = levels(as.factor(ext_gencor$T1))
+
+# fill in your corr matrix
+k=1
+for (i in 1:length(levels(as.factor(ext_gencor$T1)))) {
+  
+  for (j in 1:length(levels(as.factor(ext_gencor$T1)))) {
+    
+    cor_mat[i,j] = ext_gencor$Rg[k]
+    k=k+1
+
+  }
+}
+
+cor_mat = apply(cor_mat, 2 ,as.numeric)
+rownames(cor_mat) = colnames(cor_mat)
+
+# plot
+#pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/all_external_traits_v7.pdf")
+corrplot(cor_mat, is.corr = F, tl.pos='n')
+#dev.off()
+
+#pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/all_external_traits_v8.pdf")
+corrplot(cor_mat, is.corr = F, type = 'lower', tl.pos = 'l', tl.cex = 0.5, order = 'hclust')
+#dev.off()
+
+```
+
+```{r filterTraits}
+
+# Make a subset of traits that are >0.80 correlated among each other.
+
+ext_gencor$Rg = as.numeric(ext_gencor$Rg)
+ext_gencor$SE = as.numeric(ext_gencor$SE)
+ext_gencor$P = as.numeric(ext_gencor$P)
+
+high_cor = ext_gencor[ext_gencor$Rg>0.8 & ext_gencor$Rg!=1.0,]
+high_cor_list = unique(c(high_cor$T1, high_cor$T2))
+# there are 40 traits that are >0.8 genetically correlated among
+# each other.
+high_ext_gencor = rbind(ext_gencor[grep(paste(high_cor_list, collapse = "|"), ext_gencor$T1),],
+                        ext_gencor[grep(paste(high_cor_list, collapse = "|"), ext_gencor$T2),])
+
+# Create a correlation matrix for traits that are >0.80 genetically
+# correlated.
+high_cor_mat = data.frame(matrix(nrow = length(levels(as.factor(high_ext_gencor$T1))),
+                                 ncol = length(levels(as.factor(high_ext_gencor$T1)))))
+
+rownames(high_cor_mat) = levels(as.factor(high_ext_gencor$T1))
+colnames(high_cor_mat) = levels(as.factor(high_ext_gencor$T1))
+
+# fill in your corr matrix
+k=1
+for (i in 1:length(levels(as.factor(high_ext_gencor$T1)))) {
+  
+  for (j in 1:length(levels(as.factor(high_ext_gencor$T1)))) {
+    
+    high_cor_mat[i,j] = high_ext_gencor$Rg[k]
+    k=k+1
+    
+  }
+}
+
+high_cor_mat = apply(high_cor_mat, 2 ,as.numeric)
+rownames(high_cor_mat) = colnames(high_cor_mat)
+
+# Create a distance matrix from the correlation matrix of highly
+# correlated traits.
+high_dist_matrix <- as.dist(1 - high_cor_mat)
+
+# Perform hierarchical clustering
+high_hclust_results <- hclust(high_dist_matrix, method = "ward.D2")
+
+#pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/hclust_40topCorrelatedTraits.pdf")
+plot(high_hclust_results, cex = 0.25, main = "Genetic Correlations among highly correlated traits", hang = -1)
+#dev.off()
+
+# Determine the optimal number of clusters using the elbow method
+high_wss <- sapply(2:10, function(k) sum(kmeans(high_dist_matrix, centers = k)$withinss))
+plot(2:10, high_wss, type = "b", xlab = "Number of clusters", ylab = "Within-cluster sum of squares")
+
+# Identify the elbow point using the "knee point" algorithm
+high_knee <- function(x, y) {
+  dx <- x - lag(x)
+  dy <- y - lag(y)
+  k <- which.max(dx * dy) + 1
+  return(k)
+}
+
+high_num_clusters <- high_knee(2:10, wss)
+abline(v = high_num_clusters, col = "red")
+
+# Cut the dendrogram at the optimal number of clusters
+high_clusters <- cutree(high_hclust_results, k = high_num_clusters)
+
+# Identify the most informative and representative traits for each cluster
+high_top_traits <- sapply(1:high_num_clusters, function(x) high_ext_gencor$T1[high_clusters == x][which.max(abs(high_cor_mat[,high_clusters == x]))])
+# Hier. clustering identified 8 clusters and 8 traits that represent these 
+# clusters using variation data of 40 traits.
+
+high_subset_data <- high_ext_gencor[high_ext_gencor$T1 %in% high_top_traits,]
+
+```
+

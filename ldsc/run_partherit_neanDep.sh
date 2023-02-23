@@ -13,4 +13,12 @@
 
 # Genomic SEM common factor results
 
-/data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/ldsc/partherit_baseline.sh /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/munged/GenomicSEM_multivarGWAS_dys_rhyimp.sumstats.gz neanDepRegions_hg19.sorted /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/GenomicSEM_multivarGWAS_dys_rhyimp.neanDepRegions
+#/data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/ldsc/partherit_baseline.sh /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/GenomicSEM_multivarGWAS_CPM_dys_rhyimp.sumstats.gz neanDepRegions_hg19.sorted /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/GenomicSEM_multivarGWAS_dys_rhyimp.neanDepRegions
+
+# Genomic SEM IPM results - dyslexia
+
+/data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/ldsc/partherit_baseline.sh /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/GenomicSEM_multivarGWAS_dys_IPM.sumstats.gz neanDepRegions_hg19.sorted /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/GenomicSEM_multivarGWAS_dys_IPM.neanDepRegions
+
+# Genomic SEM IPM results - rhythm impairment
+
+/data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/ldsc/partherit_baseline.sh /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/munged/GenomicSEM_multivarGWAS_rhyimp_IPM.sumstats.gz neanDepRegions_hg19.sorted /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/GenomicSEM_multivarGWAS_rhyimp_IPM.neanDepRegions

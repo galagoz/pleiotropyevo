@@ -25,11 +25,30 @@ genSEM="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/"
 
 # 3) Genomic SEM common factor results
 
-awk 'NR==FNR{a[$1];next} $2 in a {print $2, $10}' ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_lambdaGCcorrected.tab ${genSEM}../GWAMA/dyslexia_rhythmImpairment.N_weighted_GWAMA.results.txt > ${genSEM}perSNP_Ns_forgenomicSEM.txt
-sed -Ei '1s/^/SNP N\n/' ${genSEM}perSNP_Ns_forgenomicSEM.txt
+#awk 'NR==FNR{a[$1];next} $2 in a {print $2, $10}' ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr.tab ${genSEM}../GWAMA/dys_rhyimp.N_weighted_GWAMA.results.txt > ${genSEM}perSNP_Ns_forgenomicSEM.txt
+#sed -Ei '1s/^/SNP N\n/' ${genSEM}perSNP_Ns_forgenomicSEM.txt
+#
+#awk '{print $1, $5, $6, $4, $12, $13, $15}' ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB1.ma
+#awk -F" " 'NR==FNR{a[NR]=$2;next} {$8=a[FNR]} 1' OFS=" " ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB1.ma > ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forGCTB.ma
+#
+#chmod 777 ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forGCTB.ma
+#rm ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB1.ma
 
-awk '{print $1, $5, $6, $4, $12, $13, $15}' ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_lambdaGCcorrected.tab > ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB1.ma
-awk -F" " 'NR==FNR{a[NR]=$2;next} {$8=a[FNR]} 1' OFS=" " ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB1.ma > ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB.ma
+#GenomicSEM_multivarGWAS_dys_IPM_forGCTB.ma
 
-chmod 777 ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB.ma
-rm ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB1.ma
+# 4) Genomic SEM IPM results dys
+
+#awk '{print $1, $5, $6, $4, $12, $13, $15}' ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_forGCTB1.ma
+#awk -F" " 'NR==FNR{a[NR]=$2;next} {$8=a[FNR]} 1' OFS=" " ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_forGCTB1.ma > ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_forGCTB.ma
+#
+#chmod 777 ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_forGCTB.ma
+#rm ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_forGCTB1.ma
+
+# 5) Genomic SEM IPM results rhyimp
+
+awk '{print $1, $5, $6, $4, $12, $13, $15}' ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_forGCTB1.ma
+awk -F" " 'NR==FNR{a[NR]=$2;next} {$8=a[FNR]} 1' OFS=" " ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_forGCTB1.ma > ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_forGCTB.ma
+
+chmod 777 ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_forGCTB.ma
+rm ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_forGCTB1.ma
+

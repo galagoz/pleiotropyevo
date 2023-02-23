@@ -8,15 +8,16 @@ output: rmarkdown::github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(LAVA)
+library(stringr)
 library(kableExtra)
 ```
 
 ```{r processInput}
 ### Read in summary statistics and related info
-input = process.input(input.info.file="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input.info.txt",           # input info file
-                      sample.overlap.file="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/sample.overlap.txt",   # sample overlap file (can be set to NULL if there is no overlap)
+input = process.input(input.info.file="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/input.info.txt",           # input info file
+                      sample.overlap.file="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/sample.overlap.txt",   # sample overlap file (can be set to NULL if there is no overlap)
                       ref.prefix="/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr",                    # reference genotype data prefix
-                      phenos=c("dyslexia","rhythm_imp"))       # subset of phenotypes listed in the input info file that we want to process
+                      phenos=c("dyslexia","rhythm_impairment"))       # subset of phenotypes listed in the input info file that we want to process
 
 # inspect the processed input data
 ls(input)                     # this is actually an environment; hence ls() rather than str()
@@ -25,7 +26,6 @@ head(input$sum.stats$bmi)
 input$info            # processed input info file, with additional variables computed by process.input()
 input$sample.overlap  # sample overlap file
 
-
 head(input$ref$bim)   # bim file from reference data
   
 # read more about this function
@@ -33,8 +33,20 @@ head(input$ref$bim)   # bim file from reference data
 ```
 
 ```{r prepareLocus}
+# Prepare the loc file 
+partitioned_genome = read.table("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_s2500_m25_f1_w200.blocks",
+                                header = T)
+colnames(partitioned_genome) = c("CHR", "START", "STOP")
+partitioned_genome$LOC = 1:nrow(partitioned_genome)
+partitioned_genome = partitioned_genome[,c(4,1,2,3)]
+write.table(partitioned_genome,
+            "/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_s2500_m25_f1_w200.blocks.loci",
+            row.names = F, quote = F)
+
+https://github.com/cadeleeuw/lava-partitioning
+
 ### Read in locus info file
-loci = read.loci("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/fetal_hge_hg19.merged.sorted.bed")
+loci = read.loci("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_s2500_m25_f1_w200.blocks.loci")
 head(loci)  # inspect the locus file
 #>   LOC CHR     START      STOP
 #> 1 100   1 113418038 114664387
@@ -69,7 +81,7 @@ run.univ(locus)
 ```
 
 ```{bash}
-Rscript /data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/LAVA/lava_script.R "/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/fetal_hge_hg19.merged.sorted.bed" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input.info.txt" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/sample.overlap.txt" "dyslexia;rhythm_impairment" "dyslexia.rhythm_impairment"
+Rscript /data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/LAVA/lava_script.R "/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr" "/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_s2500_m25_f1_w200.blocks.loci" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/input.info.txt" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/sample.overlap.txt" "dyslexia-rhythm_impairment" "dyslexia.rhythm_impairment"
 ```
 
 ```{r plot}

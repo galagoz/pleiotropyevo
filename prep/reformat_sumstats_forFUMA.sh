@@ -13,8 +13,8 @@ genSEM="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/"
 # 1) Dyslexia
 
 # add total N column
-#awk 'NR>1 {print $0"\t"$7+$8}' ${sumstats}dyslexia.filtered.2_lambdaGCcorrected.dat > ${sumstats}tmp
-#echo -e "all.data.id     src     pvalue  effect  stderr  pass    im.num.0        im.num.1        AA.0    AB.0    BB.0    AA.1    AB.1    BB.1    im.data.id      chr     position        alleles rsid    dose.b  freq.b  avg.rsqr        min.rsqr        alleleA alleleB OR      chrpos	N"| cat - ${sumstats}tmp > ${sumstats}dyslexia.filtered.2_lambdaGCcorrected_wtotalN.dat
+#awk 'NR>1 {print $0"\t"$7+$8}' ${sumstats}dyslexia.filtered.2.dat > ${sumstats}tmp
+#echo -e "all.data.id     src     pvalue  effect  stderr  pass    im.num.0        im.num.1        AA.0    AB.0    BB.0    AA.1    AB.1    BB.1    im.data.id      chr     position        alleles rsid    dose.b  freq.b  avg.rsqr        min.rsqr        alleleA alleleB OR      chrpos	N"| cat - ${sumstats}tmp > ${sumstats}dyslexia.filtered.2_wtotalN.txt
 #rm ${sumstats}tmp
 
 # 2) Rhythm impairment
@@ -29,6 +29,6 @@ genSEM="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/"
 
 # 3) Genomic SEM results
 
-awk -F" " 'NR==FNR{a[NR]=$2;next} {print $0"\t"a[FNR]}' ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_lambdaGCcorrected.tab > ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_withN.tab
+awk 'NR==FNR{a[NR]=$2;next} {print $0"\t"a[FNR]}' ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
 
-chmod 777 ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_withN.tab
+chmod 777 ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_withN.tab

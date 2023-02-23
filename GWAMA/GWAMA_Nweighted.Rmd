@@ -17,8 +17,8 @@ library(qqman)
 ```{r readData}
 
 dat<-vector("list",2)
-dat[[1]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_forNweighted.txt",showProgress=F,data.table=F)
-dat[[2]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythm_impairment_forNweighted.txt",showProgress=F,data.table=F)
+dat[[1]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/corrected_sumstats/dyslexia_forNweighted.txt",showProgress=F,data.table=F)
+dat[[2]]<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/corrected_sumstats/rhythm_impairment_forNweighted.txt",showProgress=F,data.table=F)
 
 # Convert X to 23
 dat[[1]]$CHR[dat[[1]]$CHR == "X"] = 23
@@ -32,9 +32,10 @@ dat[[2]]$CHR = as.integer(dat[[2]]$CHR)
 #head(dat[[2]])
 #nrow(rhy_MA)
 
+# Cross trait interceps are needed to correct for sample overlap
 CTI <- as.matrix(read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gencor/CTI_matrix.txt", header =T))
 
-h2list <- c(0.0951, 0.0932)
+h2list <- c(0.1465, 0.136) # h2 estimates from corrected sumstats -> c(0.0951, 0.0932)
 
 ```
 
@@ -46,7 +47,7 @@ multivariate_GWAMA(x = dat,
                    cov_Z = CTI,
                    h2 = h2list,
                    out = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA", 
-                   name = "dyslexia_rhythmImpairment", 
+                   name = "dys_rhyimp", 
                    output_gz = F, 
                    check_columns = F)
 

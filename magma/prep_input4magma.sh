@@ -21,7 +21,11 @@ outDir="/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evo
 ## a) Reformat Genomic SEM meta-analysis results file
 ## "The SNP location file should contain three columns: SNP ID, chromosome, and base pair position"
 
-awk 'OFS="\t" {print $1, $2, $3}' ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_lambdaGCcorrected.tab > ${outDir}snp_loc_input.tab
+#awk 'OFS="\t" {print $1, $2, $3}' ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr.tab > ${outDir}snp_loc_input.tab
+
+awk 'OFS="\t" {print $1, $2, $3}' ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_GCcorr.tab > ${outDir}snp_loc_input_dys_IPM.tab
+
+awk 'OFS="\t" {print $1, $2, $3}' ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_GCcorr.tab > ${outDir}snp_loc_input_rhyimp_IPM.tab
 
 ## b) GENELOC_FILE for hg19 is provided in MAGMA website, but you still need to reformat it.
 ## The gene location file must contain at least four columns, in this order: gene ID, chromosome, start site, stop site.
@@ -35,8 +39,20 @@ awk 'OFS="\t" {print $1, $2, $3}' ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_la
 # Reformat Genomic SEM meta-analysis results file
 # "The p-value file must be a plain text data file with each row corresponding to a SNP. If MAGMA detects a header in the file it will look for SNP IDs and p-values in the SNP and P column respectively. Sample size can also be set by using the ncol modifier to specify a column in the p-value file that contains the sample size used per SNP."
 
-awk 'OFS="\t" {print $1, $7, $8}' ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB.ma > ${outDir}pval_file4magma.tab
-sed -Ei '1s/Pval_Estimate/P/' ${outDir}pval_file4magma.tab
+# CPM
+
+#awk 'OFS="\t" {print $1, $7, $8}' ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forGCTB.ma > ${outDir}pval_file4magma.tab
+#sed -Ei '1s/Pval_Estimate/P/' ${outDir}pval_file4magma.tab
+
+# IPM - dys
+
+#awk 'OFS="\t" {print $1, $7, $8}' ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_forGCTB.ma > ${outDir}pval_file4magma_dys_IPM.tab
+#sed -Ei '1s/Pval_Estimate/P/' ${outDir}pval_file4magma_dys_IPM.tab
+
+# IPM - rhyimp
+
+#awk 'OFS="\t" {print $1, $7, $8}' ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_forGCTB.ma > ${outDir}pval_file4magma_rhyimp_IPM.tab
+#sed -Ei '1s/Pval_Estimate/P/' ${outDir}pval_file4magma_rhyimp_IPM.tab
 
 ##########################
 

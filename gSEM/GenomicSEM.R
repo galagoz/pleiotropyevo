@@ -66,7 +66,7 @@ load(paste0(outDir, "GenomicSEM_LDSCoutput_dys_rhyimp.RData"))
 model = "F1 =~ 1*Dyslexia + 1*Rhythm_impairment
 F1 ~ SNP"
 #run the multivariate GWAS using parallel processing
-#CommonFactor2_DWLS = usermodel(LDSCoutput_2traits, estimation="DWLS", model = model)
+CommonFactor2_DWLS = usermodel(LDSCoutput_2traits, estimation="DWLS", model = model)
 
 #[1] "Running primary model"
 #[1] "Calculating CFI"
@@ -103,9 +103,9 @@ F1 ~ SNP"
 se.logit = c(T,T)
 ref = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/reference.1000G.maf.0.005.txt"
 
-# dys_and_rhyimp_sumstats = sumstats(files = sumstats, 
-#                                    ref = ref, 
-#                                    trait.names = trait_names, 
+# dys_and_rhyimp_sumstats = sumstats(files = sumstats,
+#                                    ref = ref,
+#                                    trait.names = trait_names,
 #                                    se.logit = se.logit)
 
 ##optional command to save the formatted sumstats in case you want to use it in a later R session. 
@@ -143,11 +143,11 @@ CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
                              smooth_check=FALSE)
 
 ## optional command to save the multivariate GWAS results in case you want to use it in a later R session.
-save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp.RData"))
-fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_rhyimp.tab"), 
+save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_CPM_dys_rhyimp.RData"))
+fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_CPM_dys_rhyimp.tab"), 
        sep = "\t",  row.names = FALSE, col.names = TRUE)
 # to load multivarGWAS results
-#load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp_finalModel.RData"))
+#load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp.RData"))
 
 #----------------------------------------------------------------------------------------------------------
 # 5.5) Calculate sample size for factors.
@@ -164,7 +164,7 @@ fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_d
 N_hat_F1<-mean(1/((2*CorrelatedFactors[[1]]$MAF*(1-CorrelatedFactors[[1]]$MAF))*CorrelatedFactors[[1]]$SE^2), na.rm = T)
 CorrelatedFactors[[1]]$N = round(N_hat_F1)
 
-fwrite(CorrelatedFactors[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_rhyimp_forMunge.tab"), 
+fwrite(CorrelatedFactors[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forMunge.tab"), 
        sep = "\t",  row.names = FALSE, col.names = TRUE)
 
 ####Make a Miamiplot w/CommonFactor and GWAMA results#######################
@@ -208,11 +208,27 @@ CorrelatedFactors2 <- userGWAS(covstruc = LDSCoutput_2traits,
                                 parallel = TRUE)
 
 ##optional command to save the multivariate GWAS results in case you want to use it in a later R session.
-save(CorrelatedFactors2, file = paste0(outDir, "GenomicSEM_multivarGWAS_model2_dys_rhyimp_finalModel.RData"))
-fwrite(CorrelatedFactors2[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_model2_dys_rhyimp_finalModel.tab"), 
-       sep = "\t",  row.names = FALSE, col.names = TRUE)
+#save(CorrelatedFactors2, file = paste0(outDir, "GenomicSEM_multivarGWAS_IPM_dys_rhyimp.RData"))
+
+#fwrite(CorrelatedFactors2[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_IPM_dys_rhyimp.tab"), 
+#       sep = "\t",  row.names = FALSE, col.names = TRUE)
+
+#fwrite(CorrelatedFactors2[[2]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_rhyimp_IPM_dys_rhyimp.tab"), 
+#       sep = "\t",  row.names = FALSE, col.names = TRUE)
 # to load multivarGWAS results
-#load(paste0(outDir, "GenomicSEM_multivarGWAS_model2_dys_rhyimp_v2.RData"))
+load(paste0(outDir, "GenomicSEM_multivarGWAS_IPM_dys_rhyimp.RData"))
+
+N_hat_F1<-mean(1/((2*CorrelatedFactors2[[1]]$MAF*(1-CorrelatedFactors2[[1]]$MAF))*CorrelatedFactors2[[1]]$SE^2), na.rm = T)
+CorrelatedFactors2[[1]]$N = round(N_hat_F1)
+
+fwrite(CorrelatedFactors2[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_IPM_forMunge.tab"), 
+       sep = "\t",  row.names = FALSE, col.names = TRUE)
+
+N_hat_F1<-mean(1/((2*CorrelatedFactors2[[2]]$MAF*(1-CorrelatedFactors2[[2]]$MAF))*CorrelatedFactors2[[2]]$SE^2), na.rm = T)
+CorrelatedFactors2[[2]]$N = round(N_hat_F1)
+
+fwrite(CorrelatedFactors2[[2]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_rhyimp_IPM_forMunge.tab"), 
+       sep = "\t",  row.names = FALSE, col.names = TRUE)
 
 #----------------------------------------------------------------------------------------------------------
 # 7) Plot
@@ -231,9 +247,9 @@ fwrite(CorrelatedFactors2[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_
 # png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/gSEM_dysRhyImp_Qscores_Miamiplot.png", type="cairo", width=1000, height=500, units="mm", res = 300)
 # par(mfrow=c(2,1))
 # par(mar=c(0,5,5,3))
-# manhattan(CorrelatedFactors[[1]], ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+# manhattan(genSEM_CPM, ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
 # par(mar=c(5,5,1,3))
-# manhattan(CorrelatedFactors[[1]], ylim = c(25,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
+# manhattan(genSEM_CPM, ylim = c(25,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
 # dev.off()
 
 # miami plot v2
@@ -242,9 +258,9 @@ fwrite(CorrelatedFactors2[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_
 # png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/gSEM_dysRhyImp_Qscores_Miamiplot_v2.png", type="cairo", width=1000, height=500, units="mm", res = 300)
 # par(mfrow=c(2,1))
 # par(mar=c(0,5,5,3))
-# manhattan(CorrelatedFactors[[1]], ylim = c(0,35), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+# manhattan(genSEM_CPM, ylim = c(0,35), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
 # par(mar=c(5,5,1,3))
-# manhattan(CorrelatedFactors[[1]], ylim = c(35,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
+# manhattan(genSEM_CPM, ylim = c(35,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
 # dev.off()
 
 # Plot MA, dys and RI manhattans at once

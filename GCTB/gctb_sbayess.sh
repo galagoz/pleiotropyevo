@@ -29,8 +29,24 @@ outDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GCTB/"
 
 # Run SBayesS on Genomic SEM Common Pathways sumstat (dys and rhy_imp meta-analysis results)
 
+#gctb --sbayes S \
+#     --mldm /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/ukbEURu_hm3_shrunk_sparse/ukbEURu_hm3_sparse_mldm_list.txt \
+#     --gwas-summary ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forGCTB.ma \
+#     --burn-in 2000 \
+#     --out ${outDir}rhyimp_dys_genomicSEM_CPM > ${outDir}rhyimp_dys_genomicSEM_CPM.log 2>&1
+
+# Run SBayesS on Genomic SEM IPM dys sumstat
+
 gctb --sbayes S \
      --mldm /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/ukbEURu_hm3_shrunk_sparse/ukbEURu_hm3_sparse_mldm_list.txt \
-     --gwas-summary ${genSEM}GenomicSEM_multivarGWAS_dys_rhyimp_forGCTB.ma \
+     --gwas-summary ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_forGCTB.ma \
      --burn-in 2000 \
-     --out ${outDir}rhyimp_dys_genomicSEM_CPM > ${outDir}rhyimp_dys_genomicSEM_CPM.log 2>&1
+     --out ${outDir}dys_IPM_genomicSEM > ${outDir}dys_IPM_genomicSEM.log 2>&1
+
+# Run SBayesS on Genomic SEM IPM rhyimp sumstat
+
+gctb --sbayes S \
+     --mldm /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/ukbEURu_hm3_shrunk_sparse/ukbEURu_hm3_sparse_mldm_list.txt \
+     --gwas-summary ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_forGCTB.ma \
+     --burn-in 2000 \
+     --out ${outDir}rhyimp_IPM_genomicSEM > ${outDir}rhyimp_IPM_genomicSEM.log 2>&1
