@@ -43,8 +43,6 @@ write.table(partitioned_genome,
             "/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_s2500_m25_f1_w200.blocks.loci",
             row.names = F, quote = F)
 
-https://github.com/cadeleeuw/lava-partitioning
-
 ### Read in locus info file
 loci = read.loci("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_s2500_m25_f1_w200.blocks.loci")
 head(loci)  # inspect the locus file
@@ -74,31 +72,38 @@ locus$phenos                            # locus phenotypes
 ```{r univariateTest}
 # for all phenotypes in the locus
 run.univ(locus)
-#>         phen      h2.obs          p
-#> 1 depression 8.05125e-05 0.04240950
-#> 2      neuro 1.16406e-04 0.03154340
-#> 3        bmi 1.93535e-04 0.00146622
+
 ```
 
 ```{bash}
 Rscript /data/workspaces/lag/workspaces/lg-genlang/Working/SCRIPTS/23andMe/clap-beat_dyslexia/pleiotropyevo/LAVA/lava_script.R "/data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_allchr" "/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/LAVA_s2500_m25_f1_w200.blocks.loci" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/input.info.txt" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/input/sample.overlap.txt" "dyslexia-rhythm_impairment" "dyslexia.rhythm_impairment"
 ```
 
-```{r plot}
-lava_results = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/new_annotations/hg19_beds/bivar_results/all_annots.txt",
+```{r plotResults}
+# 1) 2500 LD independent genomic bins
+lava_res_s2500 = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/output/LAVA_s2500_m25_f1_w200.blocks.bed.bivar.lava",
                           header = T)
 
-lava_results = lava_results[!is.na(lava_results$rho), ]
-lava_results$fdr = p.adjust(lava_results$p, method = "fdr")
+lava_res_s2500$annot = "s2500"
 
-kableExtra::kable(lava_results[,c(2,3,4,5,9,10,11,12,13,14,15,16,17)], "html",
-                  caption = "Local genetic correlation results for Dyslexia and Rhythm impairment.") %>%
-                  kable_styling("striped") %>%
-                  save_kable("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/figures/lava_table.pdf")
-lava_results[lava_results$fdr < 0.05,]
-kableExtra::kable(lava_results[lava_results$fdr < 0.05, c(2,3,4,5,9,10,11,12,13,14,15,16,17)], "html",
-                  caption = "Local genetic correlation results for Dyslexia and Rhythm impairment.") %>%
-                  kable_styling("striped") %>%
-                  save_kable("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/figures/lava_table_sigLoci.pdf")
+# 2) neandertal depleted regions
+lava_res_neanDep = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/output/neanDepRegions_hg19.sorted.bed.bivar.lava",
+                          header = T)
+
+lava_res_neanDep$annot = "neanDep"
+
+# 3) human-specific duplications
+lava_res_humspedup = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/output/human_specific_duplications_hg19-dennis_et_al.sorted.bed.bivar.lava",
+                          header = T)
+
+lava_res_humspedup$annot = "humspedup"
+
+# merge and perform FDR correction
+lava_merged = rbind(lava_res_s2500, lava_res_neanDep, lava_res_humspedup)
+lava_merged$fdr = p.adjust(lava_merged$p, method = "fdr")
+
+# save results in a table
+write.table(lava_merged, "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/LAVA/output/LAVA_results_3annotations.txt", quote = F, row.names = F, sep = "\t")
+
 ```
 

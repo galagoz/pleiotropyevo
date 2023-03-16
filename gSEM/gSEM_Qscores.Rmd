@@ -88,8 +88,3 @@ plot(CorrelatedFactors2_v2_QchisqPvalFiltered$est[3:nrow(CorrelatedFactors2_v2_Q
 
 ```
 
-```{r}
-gensem = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_dys_rhyimp_forEvo.txt", header = T)
-phylop= 
-```
-

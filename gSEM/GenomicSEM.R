@@ -25,6 +25,7 @@ library(GenomicSEM)
 library(lavaan)
 require(stats)
 require(Matrix)
+require(GenomicSEM)
 
 inDir = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/"
 outDir = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/"
@@ -60,11 +61,11 @@ trait_names = c("Dyslexia", "Rhythm_impairment")
 load(paste0(outDir, "GenomicSEM_LDSCoutput_dys_rhyimp.RData"))
 
 #----------------------------------------------------------------------------------------------------------
-# 3) Common Factor Model - final version
+# 3) Common Factor Model
 #----------------------------------------------------------------------------------------------------------
 
-model = "F1 =~ 1*Dyslexia + 1*Rhythm_impairment
-F1 ~ SNP"
+model = 'F1 =~ 1*Dyslexia + 1*Rhythm_impairment
+F1 ~ SNP'
 #run the multivariate GWAS using parallel processing
 CommonFactor2_DWLS = usermodel(LDSCoutput_2traits, estimation="DWLS", model = model)
 
@@ -129,12 +130,12 @@ F1 ~ SNP"
 
 # Run the multivariate GWAS using parallel processing
 CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
-                             SNPs = dys_and_rhyimp_sumstats,
+                             SNPs = dys_and_rhyimp_sumstats[dys_and_rhyimp_sumstats$SNP=="rs17151639",],
                              estimation = "DWLS",
                              model = model,
                              printwarn = TRUE,
-                             sub=c("F1~SNP"),
-                             cores = 5,
+                             sub=c("F1 ~~ F1","Dyslexia ~~ Dyslexia","Rhythm_impairment ~~ Rhythm_impairment", "F1 ~ SNP"),
+                             #cores = 5,
                              toler = FALSE,
                              SNPSE = FALSE,
                              parallel = TRUE,
@@ -143,9 +144,9 @@ CorrelatedFactors = userGWAS(covstruc = LDSCoutput_2traits,
                              smooth_check=FALSE)
 
 ## optional command to save the multivariate GWAS results in case you want to use it in a later R session.
-save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_CPM_dys_rhyimp.RData"))
-fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_CPM_dys_rhyimp.tab"), 
-       sep = "\t",  row.names = FALSE, col.names = TRUE)
+#save(CorrelatedFactors, file = paste0(outDir, "GenomicSEM_multivarGWAS_CPM_dys_rhyimp.RData"))
+#fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_CPM_dys_rhyimp.tab"), 
+#       sep = "\t",  row.names = FALSE, col.names = TRUE)
 # to load multivarGWAS results
 #load(paste0(outDir, "GenomicSEM_multivarGWAS_dys_rhyimp.RData"))
 
@@ -164,24 +165,8 @@ fwrite(CorrelatedFactors[[1]], file = paste0(outDir,  "GenomicSEM_multivarGWAS_C
 N_hat_F1<-mean(1/((2*CorrelatedFactors[[1]]$MAF*(1-CorrelatedFactors[[1]]$MAF))*CorrelatedFactors[[1]]$SE^2), na.rm = T)
 CorrelatedFactors[[1]]$N = round(N_hat_F1)
 
-fwrite(CorrelatedFactors[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forMunge.tab"), 
-       sep = "\t",  row.names = FALSE, col.names = TRUE)
-
-####Make a Miamiplot w/CommonFactor and GWAMA results#######################
-
-dys_rhy_Nweighted = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA/dyslexia_rhythmImpairment.N_weighted_GWAMA.results.txt")
-
-png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/Dys_RhyImp_GWAMA-gSEM_Miamiplot.png", type="cairo", width=2000, height=500)
-par(mfrow=c(2,1))
-par(mar=c(0,5,5,3))
-manhattan(CorrelatedFactors[[1]], ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
-par(mar=c(5,5,1,3))
-manhattan(dys_rhy_Nweighted, ylim = c(25,0), chr = "CHR", bp = "BP", p = "PVAL", snp = "SNP", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
-dev.off()
-
-png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/Dys_RhyImp_gSEM_QQplot.png", type="cairo")
-qq(CorrelatedFactors[[1]]$Pval_Estimate)
-dev.off()
+#fwrite(CorrelatedFactors[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forMunge.tab"), 
+#       sep = "\t",  row.names = FALSE, col.names = TRUE)
 
 ############################################################################
 
@@ -197,15 +182,16 @@ Dyslexia + Rhythm_impairment ~ SNP"
 
 #Step 2b: run the Step 2 Model using parallel processing
 CorrelatedFactors2 <- userGWAS(covstruc = LDSCoutput_2traits,
-                                SNPs = dys_and_rhyimp_sumstats,
-                                estimation = "DWLS", 
-                                model = model2, 
-                                printwarn = TRUE, 
-                                sub=c("Dyslexia ~ SNP", "Rhythm_impairment ~ SNP"), 
-                                cores = 5,
-                                toler = FALSE, 
-                                SNPSE = FALSE, 
-                                parallel = TRUE)
+                               SNPs = dys_and_rhyimp_sumstats[dys_and_rhyimp_sumstats$SNP=="rs12640404",],
+                               estimation = "DWLS", 
+                               model = model2, 
+                               printwarn = TRUE, 
+                               sub=c("Dyslexia ~~ Dyslexia","Rhythm_impairment ~~ Rhythm_impairment", "Dyslexia ~ SNP", "Rhythm_impairment ~ SNP", "F1 ~~ F1"),
+                               #ub=c("Dyslexia ~ SNP", "Rhythm_impairment ~ SNP"), 
+                               #cores = 5,
+                               toler = FALSE, 
+                               SNPSE = FALSE, 
+                               parallel = TRUE)
 
 ##optional command to save the multivariate GWAS results in case you want to use it in a later R session.
 #save(CorrelatedFactors2, file = paste0(outDir, "GenomicSEM_multivarGWAS_IPM_dys_rhyimp.RData"))
@@ -221,61 +207,120 @@ load(paste0(outDir, "GenomicSEM_multivarGWAS_IPM_dys_rhyimp.RData"))
 N_hat_F1<-mean(1/((2*CorrelatedFactors2[[1]]$MAF*(1-CorrelatedFactors2[[1]]$MAF))*CorrelatedFactors2[[1]]$SE^2), na.rm = T)
 CorrelatedFactors2[[1]]$N = round(N_hat_F1)
 
-fwrite(CorrelatedFactors2[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_IPM_forMunge.tab"), 
-       sep = "\t",  row.names = FALSE, col.names = TRUE)
+#fwrite(CorrelatedFactors2[[1]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_dys_IPM_forMunge.tab"), 
+#       sep = "\t",  row.names = FALSE, col.names = TRUE)
 
 N_hat_F1<-mean(1/((2*CorrelatedFactors2[[2]]$MAF*(1-CorrelatedFactors2[[2]]$MAF))*CorrelatedFactors2[[2]]$SE^2), na.rm = T)
 CorrelatedFactors2[[2]]$N = round(N_hat_F1)
 
-fwrite(CorrelatedFactors2[[2]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_rhyimp_IPM_forMunge.tab"), 
-       sep = "\t",  row.names = FALSE, col.names = TRUE)
+#fwrite(CorrelatedFactors2[[2]][,c(1,4,5,6,14,15,22)], file = paste0(outDir,  "GenomicSEM_multivarGWAS_rhyimp_IPM_forMunge.tab"), 
+#       sep = "\t",  row.names = FALSE, col.names = TRUE)
 
 #----------------------------------------------------------------------------------------------------------
 # 7) Plot
 #----------------------------------------------------------------------------------------------------------
-# QQplot and Manhattan plot
-# 
-# png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/gSEM_dysRhyImp_QQplot.png", type="cairo")
-# qq(CorrelatedFactors[[1]]$Pval_Estimate)
-# dev.off()
-# 
-# png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/gSEM_dysRhyImp_CPM_Manhattan.png", type="cairo", width=1000, height=500, units="mm", res = 300)
-# manhattan(CorrelatedFactors[[1]], ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
-# dev.off()
+# Read lambdaGC corrected CPM results
+
+dys_rhy_genSEM_CPM_raw = fread(paste0(outDir, "GenomicSEM_multivarGWAS_CPM_dys_rhyimp.tab"))
+dys_rhy_genSEM_CPM = fread(paste0(outDir, "GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr.tab"))
+
+# QQplot and Manhattan plot of CPM results
+
+# before GC correction
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/genSEM_dys_rhyimp_CPM_QQplot_beforeLambdaCorrection.png", type="cairo")
+qq(dys_rhy_genSEM_CPM_raw$Pval_Estimate)
+dev.off()
+
+# after GC correction
+#png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/genSEM_dys_rhyimp_CPM_QQplot_afterLambdaCorrection.png", type="cairo")
+qq(dys_rhy_genSEM_CPM$Pval_Estimate)
+#dev.off()
+
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/genSEM_dys_rhyimp_CPM_Manhattan.png", type="cairo", width=1000, height=500, units="mm", res = 300)
+manhattan(dys_rhy_genSEM_CPM, ylim = c(0,15), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+dev.off()
 
 # miami plot v1
-# png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/gSEM_dysRhyImp_Qscores_Miamiplot.png", type="cairo", width=1000, height=500, units="mm", res = 300)
-# par(mfrow=c(2,1))
-# par(mar=c(0,5,5,3))
-# manhattan(genSEM_CPM, ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
-# par(mar=c(5,5,1,3))
-# manhattan(genSEM_CPM, ylim = c(25,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
-# dev.off()
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/genSEM_dys_rhyimp_Qscores_Miamiplot.png", type="cairo", width=1000, height=500, units="mm", res = 300)
+par(mfrow=c(2,1))
+par(mar=c(0,5,5,3))
+manhattan(dys_rhy_genSEM_CPM, ylim = c(0,15), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+par(mar=c(5,5,1,3))
+manhattan(dys_rhy_genSEM_CPM, ylim = c(15,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
+dev.off()
 
 # miami plot v2
 # MPI orange = #ED6B06
 # MPI green = #00786A
-# png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/gSEM_dysRhyImp_Qscores_Miamiplot_v2.png", type="cairo", width=1000, height=500, units="mm", res = 300)
-# par(mfrow=c(2,1))
-# par(mar=c(0,5,5,3))
-# manhattan(genSEM_CPM, ylim = c(0,35), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
-# par(mar=c(5,5,1,3))
-# manhattan(genSEM_CPM, ylim = c(35,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
-# dev.off()
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/genSEM_dys_rhyimp_Qscores_Miamiplot_v2.png", type="cairo", width=1000, height=500, units="mm", res = 300)
+par(mfrow=c(2,1))
+par(mar=c(0,5,5,3))
+manhattan(dys_rhy_genSEM_CPM, ylim = c(0,20), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+par(mar=c(5,5,1,3))
+manhattan(dys_rhy_genSEM_CPM, ylim = c(20,0), chr = "CHR", bp = "BP", p = "chisq_pval", snp = "SNP", col = c("#ED6B06", "#00786A"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
+dev.off()
 
 # Plot MA, dys and RI manhattans at once
-# 
-# dyslexia_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/dyslexia_reformatted_forNweighted3.txt",showProgress=F,data.table=F)
-# rhythm_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/rhythym_reformatted_forNweighted5.txt",showProgress=F,data.table=F)
-# 
-# dyslexia_sumstats$CHR[dyslexia_sumstats$CHR == "X"] = 23
-# rhythm_sumstats$CHR[rhythm_sumstats$CHR == "X"] = 23
-# dyslexia_sumstats$CHR = as.integer(dyslexia_sumstats$CHR)
-# rhythm_sumstats$CHR = as.integer(rhythm_sumstats$CHR)
-# 
-# png("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/gSEM_Dys_Rhy_Manhattans_v2.png", type="cairo", width=1000, height=500, units="mm", res = 300)
-# par(mfrow=c(3,1))
-# manhattan(CorrelatedFactors[[1]], ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
-# manhattan(dyslexia_sumstats, ylim = c(0,25), chr = "CHR", bp = "BP", p = "P", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
-# manhattan(rhythm_sumstats, ylim = c(0,25), chr = "CHR", bp = "BP", p = "P", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
-# dev.off()
+dyslexia_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/corrected_sumstats/dyslexia_forNweighted.txt",showProgress=F,data.table=F)
+rhythm_sumstats<-fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/data/corrected/rhythm_impairment_forNweighted.txt",showProgress=F,data.table=F)
+
+dyslexia_sumstats$CHR[dyslexia_sumstats$CHR == "X"] = 23
+rhythm_sumstats$CHR[rhythm_sumstats$CHR == "X"] = 23
+dyslexia_sumstats$CHR = as.integer(dyslexia_sumstats$CHR)
+rhythm_sumstats$CHR = as.integer(rhythm_sumstats$CHR)
+
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/CPM_dys_rhy_Manhattans.png", type="cairo", width=1000, height=500, units="mm", res = 300)
+par(mfrow=c(3,1))
+manhattan(dys_rhy_genSEM_CPM, ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+manhattan(dyslexia_sumstats, ylim = c(0,25), chr = "CHR", bp = "BP", p = "P", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
+manhattan(rhythm_sumstats, ylim = c(0,25), chr = "CHR", bp = "BP", p = "P", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+dev.off()
+
+# Miamiplot w/CommonFactor and GWAMA results
+#dys_rhy_Nweighted = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GWAMA/dys_rhyimp.N_weighted_GWAMA.results.txt")
+
+#png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/Dys_RhyImp_genSEM-GWAMA_Miamiplot_v2.png", type="cairo", width=1000, height=500)
+par(mfrow=c(2,1))
+par(mar=c(0,5,5,3))
+manhattan(dys_rhy_genSEM_CPM, ylim = c(0,25), chr = "CHR", bp = "BP", p = "Pval_Estimate", snp = "SNP", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL)
+par(mar=c(5,5,1,3))
+manhattan(dys_rhy_Nweighted, ylim = c(25,0), chr = "CHR", bp = "BP", p = "PVAL", snp = "SNPID", col = c("dodgerblue3", "grey80"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = NULL, annotateTop = NULL, xlab = "", xaxt = "n")
+#dev.off()
+
+# Example SEM diagrams for significantly heterogeneous SNPs.
+# Make these plot for top 2 most hetero- and most homo-effect SNPs.
+
+dys_rhy_genSEM_CPM_Qpvalranked = dys_rhy_genSEM_CPM[order(chisq_pval),]
+dys_rhy_genSEM_CPM_Qranked = dys_rhy_genSEM_CPM[order(chisq),]
+
+# most hetero: rs17151639, rs9659996
+# most homo: rs448036, rs12640404
+
+
+#--------------------------------------------
+library("scatterplot3d") # load
+
+for3dplot = dys_rhy_genSEM_CPM[,c(4,12,16,18)]
+for3dplot$Qsig = "grey"
+for3dplot[for3dplot$chisq_pval<5e-8,]$Qsig = "green"
+colors=for3dplot$Qsig
+#scatterplot3d(for3dplot[,c(1,2,3)])
+
+graphics.off()
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/genSEM_MAF_BETA_Q_3Dplot_angle30.png",
+    width = 8, height = 6, units = "in", res = 600)
+par(mai = c(0.5, 0.5, 0.5, 0.5))
+s3d = scatterplot3d(x = for3dplot$MAF, y = for3dplot$est, z = for3dplot$chisq, ylim = c(-0.20,0.20),
+                    cex.symbols = 1, pch = 20, color = colors, angle = 30)
+dev.off()
+
+# 1. Source the function
+source('~/hubiC/Documents/R/function/addgrids3d.r')
+# 2. Empty 3D scatter plot using pch=""
+s3d <- scatterplot3d(dys_rhy_genSEM_CPM[,c(4,12,16)], pch = "", grid=FALSE, box=FALSE)
+# 3. Add grids
+addgrids3d(dys_rhy_genSEM_CPM[,c(4,12,16)], grid = c("xy", "xz", "yz"))
+# 4. Add points
+s3d$points3d(dys_rhy_genSEM_CPM[,c(4,12,16)], pch = 16)
+
+#----------------------------------------------------------------------------------------------------------

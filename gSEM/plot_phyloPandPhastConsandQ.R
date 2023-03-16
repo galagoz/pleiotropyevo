@@ -12,6 +12,9 @@ library(data.table)
 library(ggalt)
 library(viridis)
 library(cowplot)
+library(ggpubr)
+if(!require(devtools)) install.packages("devtools")
+#devtools::install_github("kassambara/ggpubr")
 options(stringsAsFactors=FALSE)
 
 #--------------------------------------------
@@ -21,26 +24,189 @@ outDir = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_re
 
 colnames(input) = c("CHR", "STR", "END", "BETA", "SE", "P", "Q", "Q_P", "phastCons", "phyloP")
 
+input_Qranked = input[order(Q),]
+input_sig = input[input$P<5e-8,]
+input_nomsig = input[input$P<0.05,]
+nrow(input_nomsig)
+input_nomsig$mlog10P = -log(input_nomsig$P)
+input_nomsig$mlog10Q_P = -log(input_nomsig$Q_P)
+
+# tag 18 genome-wide risk loci (this list is taken from FUMA)
+input_nomsig$riskloci = "no"
+input_nomsig[input_nomsig$CHR=="chr3"&input_nomsig$END=="17394615",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr3"&input_nomsig$END=="81811784",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr3"&input_nomsig$END=="135773661",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr4"&input_nomsig$END=="92035550",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr4"&input_nomsig$END=="152286935",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr4"&input_nomsig$END=="176874330",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr5"&input_nomsig$END=="114286650",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr6"&input_nomsig$END=="108906200",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr7"&input_nomsig$END=="106863170",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr11"&input_nomsig$END=="30395895",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr11"&input_nomsig$END=="111916647",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr12"&input_nomsig$END=="60971306",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr13"&input_nomsig$END=="59565064",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr16"&input_nomsig$END=="30125840",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr17"&input_nomsig$END=="34908385",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr17"&input_nomsig$END=="44076063",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr20"&input_nomsig$END=="31093514",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr20"&input_nomsig$END=="47616271",]$riskloci = "yes"
+
+#--------------------------------------------
+input_sig_hetero = input[input$Q_P<5e-8,]
+nrow(input_sig_hetero) # 1142 sig hetero SNPs
+
+input_sig_hetero_sig = input_sig[input_sig$Q_P<5e-8,]
+
+#--------------------------------------------
+input_hetero = input_sig[input_sig$Q>10,]
+
+#--------------------------------------------
+input_homo = input_sig[input_sig$Q<1,]
+
+#--------------------------------------------
+# plot
+plot(input_hetero$Q, input_hetero$phyloP)
+plot(input_homo$BETA, input_homo$phyloP)
+median(input_homo$phyloP)
+median(input_homo$phastCons)
+
+plot(input_hetero$Q, input_hetero$phastCons)
+plot(input_homo$Q, input_homo$phastCons)
+plot(input_hetero$BETA, input_hetero$phyloP)
+plot(input_hetero$BETA, input_hetero$phastCons)
+median(input_hetero$phyloP)
+median(input_hetero$phastCons)
+
+plot(input_sig$BETA, input_sig$phyloP)
+
+# scatter
+ggplot(NULL, aes(Q, phyloP)) +
+       geom_point(data = input_sig) +
+       geom_point(data = input_homo, color = "green") +
+       geom_point(data = input_hetero, color = "red")
+
+ggplot(NULL, aes(Q, phyloP)) +
+  geom_point(data = input_sig, aes(colour = P))
+
+p1 = ggplot(input_nomsig, aes(mlog10Q_P, phyloP)) +
+  geom_point(aes(colour = mlog10P)) +
+  geom_point(data = input_nomsig[input_nomsig$riskloci=="yes",], color = "red") +
+  #geom_point(data = input_nomsig[input_nomsig$P<5e-9,], color = "red") +
+  geom_vline(aes(xintercept = -log(5e-8)), size = 1.2, lty = 2, color = "red") +
+  border()
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM//Qpvalues_vs_phyloP_CPM_FUMAriskLociMarked.png",
+       p1, width = 5, height = 5, dpi = 600)
+
+# chr13:59565064 SNP has the lowest phyloP (strongest accelated selection)
+# look further into this SNP.
+
+#--------------------------------------------
 #pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP.pdf", width = 5, height = 5)
-ggplot(input, aes(x=Q, y=phyloP)) + 
-  geom_point()+
-  xlab("Q") + ylab("phyloP")
+#ggplot(input, aes(x=Q, y=phyloP)) + 
+#  geom_point()+
+#  xlab("Q") + ylab("phyloP")
 #dev.off()
-ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP.png", width = 5, height = 5, dpi = 300)
+
+ggscatter(input, x = "Q", y = "phyloP", 
+          add = "reg.line", add.params = list(color = "red"),
+          cor.coef = TRUE, cor.coeff.args = list(method = "pearson", label.sep = "\n", label.x.npc = "right", label.y.npc = "bottom"),
+          xlab = "Q-scores", ylab = "phyloP")
+ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_v2.png", width = 5, height = 5, dpi = 300)``
 
 #pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons.pdf", width = 5, height = 5)
-ggplot(input, aes(x=Q, y=phastCons)) + 
-  geom_point()+
-  xlab("Q") + ylab("phastCons")
+#ggplot(input, aes(x=Q, y=phastCons)) + 
+#  geom_point()+
+#  xlab("Q") + ylab("phastCons")
 #dev.off()
-ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons.png", width = 5, height = 5, dpi = 300)
 
-#pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_hexagon.pdf", width = 5, height = 5)
-ggplot(input, aes(Q, phyloP)) + 
-  geom_hex(shape=16, size=0.10, show.legend = FALSE, color="red") +
-  scale_fill_viridis()
+ggscatter(input, x = "Q", y = "phastCons", 
+          add = "reg.line", add.params = list(color = "red"),
+          cor.coef = TRUE, cor.coeff.args = list(method = "pearson", label.sep = "\n", label.x.npc = "right", label.y.npc = "top"),
+          xlab = "Q-scores", ylab = "phastCons")
+ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_v2.png", width = 5, height = 5, dpi = 300)
+
+#--------------------------------------------
+
+ggscatter(input_hetero, x = "Q", y = "phyloP", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson", cor.coef.coord = c(6e-08,-6),
+          ylim = c(-6,2))
+
+ggscatter(input_homo, x = "Q", y = "phyloP", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson", cor.coef.coord = c(51,-4.8),
+          ylim = c(-6,2))
+
+p1 = ggplot(input_hetero, aes(x=Q, y=phyloP)) + 
+  geom_point()+
+  geom_smooth(method='lm', formula= y~x)+
+  labs(title = "Significantly heterogeneous effect-SNPs", 
+       subtitle = "n = 1142")+
+  xlab("Q") + ylab("phyloP")+
+  sm_statCorr(color = '#0f993d', corr_method = 'spearman',
+              linetype = 'dashed')
+
+p2 = ggplot(input_homo, aes(x=Q, y=phyloP)) + 
+  geom_point()+
+  geom_smooth(method='lm', formula= y~x)+
+  labs(title = "Least homogeneous effect-SNPs", 
+       subtitle = "n = 1142")+
+  xlab("Q") + ylab("phyloP")
+
+p1_2 = ggplot(input_hetero, aes(x=Q, y=phastCons)) + 
+  geom_point()+
+  geom_smooth(method='lm', formula= y~x)+
+  labs(title = "Significantly heterogeneous effect-SNPs", 
+       subtitle = "n = 1142")+
+  xlab("Q") + ylab("phastCons")
+
+p2_2 = ggplot(input_homo, aes(x=Q, y=phastCons)) + 
+  geom_point()+
+  geom_smooth(method='lm', formula= y~x)+
+  labs(title = "Least homogeneous effect-SNPs", 
+       subtitle = "n = 1142")+
+  xlab("Q") + ylab("phastCons")
+
+pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_heteroVShomo.pdf", width = 8, height = 5)
+plot_grid(p2, p1, labels = c('A', 'B'), label_size = 12)
+dev.off()
+
+pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_heteroVShomo.pdf", width = 8, height = 5)
+plot_grid(p2_2, p1_2, labels = c('A', 'B'), label_size = 12)
+dev.off()
+#--------------------------------------------
+
+p1 = hist(input_hetero$Q)
+p2 = hist(input_hetero$phyloP)
+plot(p1, col=rgb(0,0,1,1/4))
+plot(p2, col=rgb(1,0,0,1/4))
+#--------------------------------------------
+#pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP.pdf", width = 5, height = 5)
+#ggplot(input, aes(x=Q, y=phyloP)) + 
+#  geom_point()+
+#  xlab("Q") + ylab("phyloP")
 #dev.off()
-ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_smoothScatter.png", width = 5, height = 5, dpi = 300)
+
+ggscatter(input, x = "Q", y = "phyloP", 
+          add = "reg.line", conf.int = TRUE, add.params = list(color = "red"),
+          cor.coeff.args = list(method = "pearson", label.x = 3, label.sep = "\n"),
+          cor.coef = TRUE, cor.coeff.args = list(method = "pearson", label.sep = "\n", label.x.npc = "right", label.y.npc = "bottom"),
+          xlab = "Q-scores", ylab = "phyloP")
+ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_v2.png", width = 5, height = 5, dpi = 300)
+
+#pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons.pdf", width = 5, height = 5)
+#ggplot(input, aes(x=Q, y=phastCons)) + 
+#  geom_point()+
+#  xlab("Q") + ylab("phastCons")
+#dev.off()
+
+ggscatter(input, x = "Q", y = "phastCons", 
+          add = "reg.line", conf.int = TRUE, add.params = list(color = "red"),
+          cor.coef = TRUE, cor.coeff.args = list(method = "pearson", label.sep = "\n", label.x.npc = "right", label.y.npc = "top"),                                
+          cor.coef.coord = c(6e-08,-6), xlab = "Q-scores", ylab = "phastCons")
+ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_v2.png", width = 5, height = 5, dpi = 300)
 
 #pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_smoothScatter.pdf", width = 5, height = 5)
 smoothScatter(input$Q, input$phyloP, transformation = function(x) x ^ 0.4,
@@ -49,92 +215,30 @@ smoothScatter(input$Q, input$phyloP, transformation = function(x) x ^ 0.4,
 #dev.off()
 ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_smoothScatter.png", width = 5, height = 5, dpi = 300)
 
-#pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_hexagon.pdf", width = 5, height = 5)
-ggplot(input, aes(Q, phastCons)) + 
-  geom_hex(shape=16, size=0.25, show.legend = FALSE, color="red") +
+
+#pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_hexagon.pdf", width = 5, height = 5)
+p1 = ggplot(input, aes(Q, phyloP)) + 
+  geom_hex(shape=16, size=0.10, show.legend = FALSE, color="red") +
+  geom_smooth(method='lm', formula= y~x)+
   scale_fill_viridis()
 #dev.off()
-ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_hexagon.png", width = 5, height = 5, dpi = 300)
-#--------------------------------------------
-input_hetero = input[input$Q_P<5e-8,]
-nrow(input_hetero) # 1181 sig hetero SNPs
+ggsave(p1, "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_smoothScatter_v2.png", width = 5, height = 5, dpi = 300)
+cor.test(input$Q, input$phyloP, method=c("pearson"))
 
-input_Qranked = input[order(Q),]
-input_hetero=head(input_Qranked, n = 1181)
-input_homo=tail(input_Qranked, n = 1181)
-
-p1 = ggplot(input_hetero, aes(x=Q, y=phyloP)) + 
-  geom_point()+
+#pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_hexagon.pdf", width = 5, height = 5)
+p2 = ggplot(input, aes(Q, phastCons)) + 
+  geom_hex(shape=16, size=0.25, show.legend = FALSE, color="red") +
   geom_smooth(method='lm', formula= y~x)+
-  labs(title = "Significantly heterogeneous effect-SNPs", 
-       subtitle = "n = 1181")+
-  xlab("Q") + ylab("phyloP")
+  scale_fill_viridis()
+#dev.off()
+ggsave(p2, "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_smoothScatter_v2.png", width = 5, height = 5, dpi = 300)
+cor.test(input$Q, input$phastCons, method=c("pearson"))
 
-p2 = ggplot(input_homo, aes(x=Q, y=phyloP)) + 
-  geom_point()+
-  geom_smooth(method='lm', formula= y~x)+
-  labs(title = "Least homogeneous effect-SNPs", 
-       subtitle = "n = 1181")+
-  xlab("Q") + ylab("phyloP")
 
-p1_2 = ggplot(input_hetero, aes(x=Q, y=phastCons)) + 
-  geom_point()+
-  geom_smooth(method='lm', formula= y~x)+
-  labs(title = "Significantly heterogeneous effect-SNPs", 
-       subtitle = "n = 1181")+
-  xlab("Q") + ylab("phastCons")
-
-p2_2 = ggplot(input_homo, aes(x=Q, y=phastCons)) + 
-  geom_point()+
-  geom_smooth(method='lm', formula= y~x)+
-  labs(title = "Least homogeneous effect-SNPs", 
-       subtitle = "n = 1181")+
-  xlab("Q") + ylab("phastCons")
-
-pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_heteroVShomo.pdf", width = 8, height = 5)
-plot_grid(p2, p1, labels = c('A', 'B'), label_size = 12)
+pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_phastCons.pdf", width = 10, height = 5)
+plot_grid(p1, p2)
 dev.off()
 
-pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_heteroVShomo.pdf", width = 8, height = 5)
-plot_grid(p2_2, p1_2, labels = c('A', 'B'), label_size = 12)
-dev.off()
-#--------------------------------------------
-
-# FINISH THIS PART
-
-p1 = ggscatter(input_hetero, x = "Q", y = "phyloP", 
-               add = "reg.line", conf.int = TRUE, 
-               cor.coef = TRUE, cor.method = "pearson",
-               xlab = "Q", ylab = "phyloP", title = "Significantly heterogeneous effect-SNPs")
-
-p2 = ggplot(input_homo, aes(x=Q, y=phyloP)) + 
-  geom_point()+
-  geom_smooth(method='lm', formula= y~x)+
-  labs(title = "Least homogeneous effect-SNPs", 
-       subtitle = "n = 1181")+
-  xlab("Q") + ylab("phyloP")
-
-p1_2 = ggplot(input_hetero, aes(x=Q, y=phastCons)) + 
-  geom_point()+
-  geom_smooth(method='lm', formula= y~x)+
-  labs(title = "Significantly heterogeneous effect-SNPs", 
-       subtitle = "n = 1181")+
-  xlab("Q") + ylab("phastCons")
-
-p2_2 = ggplot(input_homo, aes(x=Q, y=phastCons)) + 
-  geom_point()+
-  geom_smooth(method='lm', formula= y~x)+
-  labs(title = "Least homogeneous effect-SNPs", 
-       subtitle = "n = 1181")+
-  xlab("Q") + ylab("phastCons")
-
-pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_heteroVShomo.pdf", width = 8, height = 5)
-plot_grid(p2, p1, labels = c('A', 'B'), label_size = 12)
-dev.off()
-
-pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_heteroVShomo.pdf", width = 8, height = 5)
-plot_grid(p2_2, p1_2, labels = c('A', 'B'), label_size = 12)
-dev.off()
 #--------------------------------------------
 
 sessionInfo()

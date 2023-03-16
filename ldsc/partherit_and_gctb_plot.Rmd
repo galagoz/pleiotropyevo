@@ -1,0 +1,89 @@
+---
+title: "globularity_summary"
+author: "Gokberk Alagoz, L&G Dept., MPI for Psycholinguistics"
+date: "`r Sys.Date()`"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(cowplot)
+```
+
+```{r partherit}
+
+partherit_res = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/partherit/all_results.tab",
+                           header = T)
+
+# change trait colname to name for the forestplot
+colnames(partherit_res) = c("Category", "Prop._SNPs", "Prop._h2", "Prop._h2_std_error", "Enrichment", "se", "Enrichment_p", "Coefficient", "Coefficient_std_error", "Coefficient_z.score", "name", "annot")
+
+# fdr correction
+partherit_res$fdr = p.adjust(partherit_res$Enrichment_p, method = "fdr")
+
+# convert character columns to factor for forestplot
+partherit_res[sapply(partherit_res, is.character)] <- lapply(partherit_res[sapply(partherit_res, is.character)], as.factor)
+
+# Order your traits
+desired_order <- c("dys_rhyimp_CPM", "dyslexia", "dys_IPM",
+                   "rhythm_impairment", "rhyimp_IPM")
+partherit_res$name <- factor(as.character(partherit_res$name), levels=desired_order)
+partherit_res <- partherit_res[order(partherit_res$name),]
+
+p1 = ggforestplot::forestplot(
+  df = partherit_res,
+  estimate = partherit_res$Enrichment,
+  pvalue = partherit_res$fdr,
+  psignif = 0.05,
+  xlab = "SNP-heritability enrichments/depletions",
+  colour = partherit_res$annot,
+  xmin = partherit_res$Enrichment - 1.96 * partherit_res$se,
+  xmax = partherit_res$Enrichment + 1.96 * partherit_res$se
+) +
+  scale_color_manual(values=c("darkred", "navyblue", "darkgreen")) +
+  theme(legend.position = "none") #+
+  #labs(colour = "Traits")
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/partherit/partherit_results.pdf", p1,
+       width = 5, height = 4, dpi = 600)
+
+```
+
+```{r GCTB}
+
+gctb_res = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/GCTB/all_results.tab",
+                           header = T)
+
+# change trait colname to name for the forestplot
+colnames(gctb_res) = c("Measure", "Mean", "se", "name")
+
+# convert character columns to factor for forestplot
+gctb_res[sapply(gctb_res, is.character)] <- lapply(gctb_res[sapply(gctb_res, is.character)], as.factor)
+
+# Order your traits
+desired_order <- c("rhyimp_dys_CPM", "dyslexia", "dys_IPM",
+                   "rhythm_impairment", "rhyimp_IPM")
+gctb_res$name <- factor(as.character(gctb_res$name), levels=desired_order)
+gctb_res <- gctb_res[order(gctb_res$name),]
+
+p2 = ggforestplot::forestplot(
+  df = gctb_res,
+  estimate = gctb_res$Mean,
+  xlab = "S coefficient",
+  xmin = gctb_res$Mean - 1.96 * gctb_res$se,
+  xmax = gctb_res$Mean + 1.96 * gctb_res$se
+) +
+  scale_color_manual(values=c("darkred", "navyblue", "darkgreen")) +
+  theme(legend.position = "bottom") +
+  labs(colour = "Traits")
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/GCTB/gctb_results.pdf", p2,
+       width = 5, height = 4, dpi = 600)
+
+p_1_2 = plot_grid(p1, p2, labels = c('A', 'B'))
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/partherit/partherit_and_gctb_results.pdf", p_1_2,
+       width = 10, height = 4, dpi = 600)
+
+```
+

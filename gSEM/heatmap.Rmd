@@ -41,11 +41,11 @@ colnames(m4heatmap) = c("MA", "Rhythm_impairment", "Dyslexia")
 ```{r QC}
 
 gwas_data_weirdSNPs = df4heatmap %>% 
-                          filter(Znorm_MA > 0 & Znorm_RhyImp < 0 & Znorm_Dys < 0)
+                          filter(Znorm_MA > 0 & Znorm_RhyImp < 0 & Znorm_Dys < 0 | Znorm_MA < 0 & Znorm_RhyImp > 0 & Znorm_Dys > 0)
 
-#write.table(gwas_data_weirdSNPs$SNP,
-#            paste0(outDir, "/weirdSNPlist.txt"),
-#            quote = F, row.names = F, col.names = F)
+write.table(gwas_data_weirdSNPs$SNP,
+            paste0(outDir, "/weirdSNPlist.txt"),
+            quote = F, row.names = F, col.names = F)
 
 ```
 
@@ -55,9 +55,9 @@ gwas_data_weirdSNPs = df4heatmap %>%
 myPalette <- c("royalblue3", "ivory", "orangered3")
 myRamp <- colorRamp2(c(-2, 0, 2), myPalette)
 
-#pdf(file = paste0(outDir, "/GWAShits_GWAMA_heatmap_Znormalized.pdf"), width = 12, height = 8)
+pdf(file = paste0(outDir, "/GWAShits_GWAMA_heatmap_Znormalized.pdf"), width = 12, height = 8)
 Heatmap(t(m4heatmap), name = "Z-score", col = myRamp, cluster_rows = F)
-#dev.off()
+dev.off()
 
 ```
 

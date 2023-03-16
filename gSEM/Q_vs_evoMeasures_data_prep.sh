@@ -16,9 +16,7 @@ outDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_resu
 #declare -a arr=("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/phyloP/" "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/phastCons/")
 
 #--------------------------------------------
-# FUNCTIONS
-
-# This function intersects annotation and 
+# Step 1: Here I intersect the annotation and 
 # bed files using bedtools.
 
 #mkdir ${outDir}scripts
@@ -49,28 +47,29 @@ outDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_resu
 #    
 #done
 
-# These commands will...
+#--------------------------------------------
+# Step 2:
 # 1) Merge all phyloP or PhastCons bed files.
-#	2) Sort them.
-#	3) Merge these files with the genomic SEM results
-#	and create a master file with all info.
+# 2) Sort them.
+# 3) Merge these files with the genomic SEM results
+# and create a master file with all info.
 
 # Merge all phyloP
-#cat ${outDir}*phyloP* > ${outDir}all_phyloP.bed
-#sort -V -k1,1 -k2,2 ${outDir}all_phyloP.bed > ${outDir}all_phyloP.sorted.bed
+cat ${outDir}*phyloP* > ${outDir}all_phyloP.bed
+sort -V -k1,1 -k2,2 ${outDir}all_phyloP.bed > ${outDir}all_phyloP.sorted.bed
 
 # Merge all phastCons
-#cat ${outDir}*phastCons* > ${outDir}all_phastCons.bed
-#sort -V -k1,1 -k2,2 ${outDir}all_phastCons.bed > ${outDir}all_phastCons.sorted.bed
+cat ${outDir}*phastCons* > ${outDir}all_phastCons.bed
+sort -V -k1,1 -k2,2 ${outDir}all_phastCons.bed > ${outDir}all_phastCons.sorted.bed
 
 # Merge sorted phyloP and phastCons files
-#join -j 2 -o 1.1,1.2,1.3,2.5,1.5 <(sort -V -k1,1 -k2,2 ${outDir}all_phyloP.sorted.bed) <(sort -V -k1,1 -k2,2 ${outDir}all_phastCons.sorted.bed) > ${outDir}all_phastCons_and_phyloP.bed
+join -j 2 -o 1.1,1.2,1.3,2.5,1.5 <(sort -V -k1,1 -k2,2 ${outDir}all_phyloP.sorted.bed) <(sort -V -k1,1 -k2,2 ${outDir}all_phastCons.sorted.bed) > ${outDir}all_phastCons_and_phyloP.bed
 
 # Add evo measures to the GenomicSEM CPM results
-#join -j 2 -o 1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,2.4,2.5 <(sort -V -k1,1 -k2,2 ${outDir}GenomicSEM_multivarGWAS_CPM_dys_rhyimp.sorted.bed) <(sort -V -k1,1 -k2,2 ${outDir}all_phastCons_and_phyloP.bed) > ${outDir}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forEVO.txt
+join -j 2 -o 1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,2.4,2.5 <(sort -V -k1,1 -k2,2 ${outDir}GenomicSEM_multivarGWAS_CPM_dys_rhyimp.sorted.bed) <(sort -V -k1,1 -k2,2 ${outDir}all_phastCons_and_phyloP.bed) > ${outDir}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_forEVO.txt
 
 # Add evo measures to the GenomicSEM IPM results - dys
 #join -j 2 -o 1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,2.4,2.5 <(sort -V -k1,1 -k2,2 ${outDir}GenomicSEM_multivarGWAS_dys_IPM.sorted.bed) <(sort -V -k1,1 -k2,2 ${outDir}all_phastCons_and_phyloP.bed) > ${outDir}GenomicSEM_multivarGWAS_dys_IPM_forEVO.txt
 
 # Add evo measures to the GenomicSEM IPM results - rhyimp
-join -j 2 -o 1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,2.4,2.5 <(sort -V -k1,1 -k2,2 ${outDir}GenomicSEM_multivarGWAS_rhyimp_IPM.sorted.bed) <(sort -V -k1,1 -k2,2 ${outDir}all_phastCons_and_phyloP.bed) > ${outDir}GenomicSEM_multivarGWAS_rhyimp_IPM_forEVO.txt
+#join -j 2 -o 1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,2.4,2.5 <(sort -V -k1,1 -k2,2 ${outDir}GenomicSEM_multivarGWAS_rhyimp_IPM.sorted.bed) <(sort -V -k1,1 -k2,2 ${outDir}all_phastCons_and_phyloP.bed) > ${outDir}GenomicSEM_multivarGWAS_rhyimp_IPM_forEVO.txt
