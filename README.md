@@ -1,4 +1,4 @@
-# Multivariate-GWAS and evolutionary analysis of reading- and rhythm-related traits
+## Multivariate-GWAS and evolutionary analysis of reading/language- and rhythm-related traits
 
 This repository includes all scripts written for the manuscript [The shared genetic architecture and evolution of human language and musical rhythm](https://www.biorxiv.org/content/10.1101/2023.11.01.564908v1).
 
