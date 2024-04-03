@@ -41,12 +41,55 @@ p1 = ggforestplot::forestplot(
   xmin = partherit_res$Enrichment - 1.96 * partherit_res$se,
   xmax = partherit_res$Enrichment + 1.96 * partherit_res$se
 ) +
-  scale_color_manual(values=c("darkred", "navyblue", "darkgreen")) +
+  scale_color_manual(values=c("darkred", "navyblue", "darkgreen", "orange", "purple")) +
   theme(legend.position = "none") #+
   #labs(colour = "Traits")
 
-ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/partherit/partherit_results.pdf", p1,
-       width = 5, height = 4, dpi = 600)
+#ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/partherit/partherit_results_v2.pdf", p1,
+#       width = 5, height = 4, dpi = 600)
+
+
+# barplot
+  
+p1_barplot = ggplot(data = partherit_res, mapping = aes(fill = annot, reorder(name,Enrichment), Enrichment)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_linerange(position = position_dodge(width = 0.9), aes(ymin = ifelse(Enrichment  - se < 0, 0, Enrichment - se), 
+                                                               ymax = Enrichment + se)) +
+    theme_classic() +
+    theme(legend.position = "non") +
+    labs(
+      x = "Trait",
+      y = expression(paste("SNP-", italic("h"^{
+        2
+      }), " Enrichment")),
+      title = "SNP-heritability enrichments/depletions") +
+      scale_y_log10(breaks = c(0.001, 0.1, 0.5, 1,5, 10, 15)) +
+        #annotation_logticks(sides = "b") + 
+        coord_trans(y = scales::exp_trans(10), ylim = c(0.001, 15), expand = F)
+        
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/partherit/partherit_results_enrichmentBarplots_woLegend_v2.pdf", 
+       p1_barplot, width = 7, height = 5, dpi = 600)
+
+
+p2_barplot = ggplot(data = partherit_res, mapping = aes(fill = annot, Enrichment,reorder(name,-Enrichment))) +
+    geom_bar(stat = "identity", position = "dodge") +
+    geom_linerange(position = position_dodge(width = 0.9), aes(xmin = ifelse(Enrichment  - se < 0, 0, Enrichment - se), 
+                                                               xmax = Enrichment + se)) +
+    theme_classic() +
+    theme(legend.position = "non") +
+    labs(
+      y = "Trait",
+      x = expression(paste("SNP-", italic("h"^{
+        2
+      }), " Enrichment")),
+      title = "SNP-heritability enrichments/depletions") +
+      scale_x_log10(breaks = c(0.001, 0.1, 0.5, 1,5, 10, 15)) +
+        #annotation_logticks(sides = "b") + 
+        coord_trans(x = scales::exp_trans(10), xlim = c(0.001, 15), expand = F)
+        
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/partherit/partherit_results_enrichmentBarplots_woLegend.pdf", 
+       p2_barplot, width = 7, height = 5, dpi = 600)
+
 
 ```
 

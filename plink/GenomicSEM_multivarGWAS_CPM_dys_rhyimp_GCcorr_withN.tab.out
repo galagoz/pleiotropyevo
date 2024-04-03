@@ -1,0 +1,106 @@
+PLINK v1.90b6.9 64-bit (4 Mar 2019)            www.cog-genomics.org/plink/1.9/
+(C) 2005-2019 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.log.
+Options in effect:
+  --bfile /data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_nonFIN_allchr
+  --clump /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+  --clump-kb 100000
+  --clump-p1 5e-8
+  --clump-r2 0.6
+  --out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+
+257610 MB RAM detected; reserving 128805 MB for main workspace.
+82721440 variants loaded from .bim file.
+404 people (0 males, 0 females, 404 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.nosex
+.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 404 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+Total genotyping rate is 0.999863.
+82721440 variants and 404 people pass filters and QC.
+Note: No phenotypes present.
+Error: No p-value field found in
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.
+PLINK v1.90b6.9 64-bit (4 Mar 2019)            www.cog-genomics.org/plink/1.9/
+(C) 2005-2019 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.log.
+Options in effect:
+  --bfile /data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_nonFIN_allchr
+  --clump /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+  --clump-kb 100000
+  --clump-p1 5e-8
+  --clump-r2 0.6
+  --out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+
+257610 MB RAM detected; reserving 128805 MB for main workspace.
+82721440 variants loaded from .bim file.
+404 people (0 males, 0 females, 404 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.nosex
+.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 404 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+Total genotyping rate is 0.999863.
+82721440 variants and 404 people pass filters and QC.
+Note: No phenotypes present.
+Error: No p-value field found in
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.
+PLINK v1.90b6.9 64-bit (4 Mar 2019)            www.cog-genomics.org/plink/1.9/
+(C) 2005-2019 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.log.
+Options in effect:
+  --bfile /data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_nonFIN_allchr
+  --clump /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+  --clump-field Pval_Estimate
+  --clump-kb 100000
+  --clump-p1 5e-8
+  --clump-r2 0.6
+  --out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+
+257610 MB RAM detected; reserving 128805 MB for main workspace.
+82721440 variants loaded from .bim file.
+404 people (0 males, 0 females, 404 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.nosex
+.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 404 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+Total genotyping rate is 0.999863.
+82721440 variants and 404 people pass filters and QC.
+Note: No phenotypes present.
+--clump: 44 clumps formed from 1609 top variants.
+Results written to
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.clumped
+.
+PLINK v1.90b6.9 64-bit (4 Mar 2019)            www.cog-genomics.org/plink/1.9/
+(C) 2005-2019 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.log.
+Options in effect:
+  --bfile /data/workspaces/lag/shared_spaces/Resource_DB/1KG_phase3/GRCh37/plink/1KG_phase3_GRCh37_EUR_nonFIN_allchr
+  --clump /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+  --clump-field Pval_Estimate
+  --clump-kb 100000
+  --clump-p1 0.05
+  --clump-r2 0.6
+  --out /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+
+257610 MB RAM detected; reserving 128805 MB for main workspace.
+82721440 variants loaded from .bim file.
+404 people (0 males, 0 females, 404 ambiguous) loaded from .fam.
+Ambiguous sex IDs written to
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.nosex
+.
+Using 1 thread (no multithreaded calculations invoked).
+Before main variant filters, 404 founders and 0 nonfounders present.
+Calculating allele frequencies... 0%1%2%3%4%5%6%7%8%9%10%11%12%13%14%15%16%17%18%19%20%21%22%23%24%25%26%27%28%29%30%31%32%33%34%35%36%37%38%39%40%41%42%43%44%45%46%47%48%49%50%51%52%53%54%55%56%57%58%59%60%61%62%63%64%65%66%67%68%69%70%71%72%73%74%75%76%77%78%79%80%81%82%83%84%85%86%87%88%89%90%91%92%93%94%95%96%97%98%99% done.
+Total genotyping rate is 0.999863.
+82721440 variants and 404 people pass filters and QC.
+Note: No phenotypes present.
+--clump: 38164 clumps formed from 387376 top variants.
+Results written to
+/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab.clumped
+.

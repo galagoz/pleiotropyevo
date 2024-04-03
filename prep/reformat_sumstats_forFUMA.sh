@@ -27,8 +27,15 @@ genSEM="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/"
 #awk 'BEGIN{OFS="\t"} {print $0, exp($4)}' ${sumstats}/ > ${sumstats}/rhythm_impairment_raw_sumstat_wtotalNandOR.txt
 #awk 'NR==1{$44="OR"}1' ${sumstats}/rhythym_impairment_raw_sumstat_wtotalNandOR.txt > tmp && mv tmp ${sumstats}/rhythm_impairment_raw_sumstat_wtotalNandOR.txt
 
-# 3) Genomic SEM results
+# 3) Genomic SEM CPM results
 
-awk 'NR==FNR{a[NR]=$2;next} {print $0"\t"a[FNR]}' ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+#awk 'NR==FNR{a[NR]=$2;next} {print $0"\t"a[FNR]}' ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.tab
+#chmod 777 ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_withN.tab
 
-chmod 777 ${genSEM}GenomicSEM_multivarGWAS_CPM_dys_rhyimp_withN.tab
+# 4) Genomic SEM rhyimp IPM results
+awk 'NR==FNR{a[NR]=$2;next} {print $0"\t"a[FNR]}' ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_GCcorr_withN.tab
+chmod 777 ${genSEM}GenomicSEM_multivarGWAS_rhyimp_IPM_GCcorr_withN.tab
+
+# 5) Genomic SEM dys IPM results
+awk 'NR==FNR{a[NR]=$2;next} {print $0"\t"a[FNR]}' ${genSEM}perSNP_Ns_forgenomicSEM.txt ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_GCcorr.tab > ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_GCcorr_withN.tab
+chmod 777 ${genSEM}GenomicSEM_multivarGWAS_dys_IPM_GCcorr_withN.tab

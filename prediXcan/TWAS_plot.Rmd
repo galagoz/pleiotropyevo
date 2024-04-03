@@ -1,0 +1,61 @@
+---
+title: "TWAS_plot"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(biomaRt)
+library(qqman)
+library(dplyr)
+```
+
+```{r readData}
+twas_all_fdr = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/TWAS/twas_FDRall_results.csv", header = T)
+```
+
+```{r mapGene2genomicLocation}
+
+# Get Ensembl gene names annotation
+biolist = as.data.frame(listMarts())
+ensembl = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+t2g = getBM(attributes=c("ensembl_gene_id","ensembl_gene_id_version", "chromosome_name", "start_position", "end_position"),
+            mart = ensembl)
+
+my_ids = data.frame(ensembl_gene_id_version = as.vector(twas_all_fdr$gene))
+my_ids$ensembl_gene_id = gsub("\\..*", "", my_ids$ensembl_gene_id_version)
+
+my_ids.version = merge(my_ids, t2g, by = "ensembl_gene_id")
+
+colnames(twas_all_fdr)[1] = "ensembl_gene_id"
+twas_all_fdr_wGenLocs = merge(twas_all_fdr, my_ids.version[,c(1,4,5,6)], by = "ensembl_gene_id")
+twas_all_fdr_wGenLocs$gene_center = twas_all_fdr_wGenLocs$start_position+((twas_all_fdr_wGenLocs$end_position-twas_all_fdr_wGenLocs$start_position)/2)
+twas_all_fdr_wGenLocs$chromosome_name = as.numeric(twas_all_fdr_wGenLocs$chromosome_name)
+# remove duplicate rows (not sure why TWAS outputs these)
+twas_all_fdr_wGenLocs = twas_all_fdr_wGenLocs[!duplicated(twas_all_fdr_wGenLocs),]
+
+```
+
+```{r filter1}
+# here, kept only the most significant gene-tissue pair for each gene
+twas_all_fdr_wGenLocs_filtered1 = twas_all_fdr_wGenLocs %>%
+                                    group_by(gene_name) %>%
+                                    filter(pvalue == min(pvalue))
+```
+
+```{r manhattanPlot}
+
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/twas/dys_rhy_CPM_TWAS_Manhattan_duplicatesRemoved.png", type="cairo", width=500, height=300, units="mm", res = 300)
+manhattan(twas_all_fdr_wGenLocs, chr = "chromosome_name", bp = "gene_center", p = "pvalue", snp = "gene_name", col = c("#214D9D", "#90A5CE"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = 5e-08, annotateTop = F, xlab = "", xaxt = "n")
+dev.off()
+
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/twas/dys_rhy_CPM_TWAS_Manhattan_filtered1.png", type="cairo", width=500, height=300, units="mm", res = 300)
+manhattan(twas_all_fdr_wGenLocs_filtered1, chr = "chromosome_name", bp = "gene_center", p = "pvalue", snp = "gene_name", col = c("#214D9D", "#90A5CE"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = 5e-08, annotateTop = F, xlab = "", xaxt = "n")
+dev.off()
+
+png("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/twas/dys_rhy_CPM_TWAS_Manhattan_filtered1.png", type="cairo", width=500, height=300, units="mm", res = 300)
+manhattan(twas_all_fdr_wGenLocs_filtered1, chr = "chromosome_name", bp = "gene_center", p = "pvalue", snp = "gene_name", col = c("#214D9D", "#90A5CE"), chrlabs = NULL, suggestiveline = -log10(5e-08), genomewideline = -log10(5e-08), highlight = NULL, logp = TRUE, annotatePval = 5e-08, annotateTop = F, xlab = "", xaxt = "n")
+dev.off()
+```
+

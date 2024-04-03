@@ -12,6 +12,7 @@ library(corrplot)
 library(reshape2)
 library(dplyr)
 library(tidyr)
+library(tidyverse)
 library(fclust)
 #devtools::install_github("NightingaleHealth/ggforestplot")
 library(ggforestplot)
@@ -38,7 +39,6 @@ gencor_out = read.table("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resu
 # all_rg = all_rg[-c(9,10,11),]
 
 # get fdr corrected pvals
-gencor_out$fdr = p.adjust(gencor_out$P, method = "fdr")
 
 gencor_out$trait_names = c("Dyslexia",
                            "Non-word Reading",
@@ -52,11 +52,30 @@ gencor_out$trait_names = c("Dyslexia",
                            "Oral exam better than written",
                            "Danish better than English")
 
-# make these columns numeric for convenience
-gencor_out$Rg = as.numeric(gencor_out$Rg)
-gencor_out$SE = as.numeric(gencor_out$SE)
-gencor_out$P = as.numeric(gencor_out$P)
+colnames(gencor_out) = c("T1", "T2", "Rg", "se", "p", "name")
+
+# Add Yasmina's results
+neuro_df = data.frame(T1 = c("rhythm", "rhythm"),
+                      T2 = c("language_resting-state_functional_connectivity",
+                             "planum_temporale_asymmetry"),
+                      Rg = c(0.28, 0.10),
+                      se = c(0.05, 0.05),
+                      p = c(8.72e-32, 1.51e-05),
+                      name = c("Language Resting-state Functional Connectivity",
+                               "Planum Temporale Asymmetry"))
+
+gencor_out = rbind(gencor_out, neuro_df)
+
+gencor_out$fdr = p.adjust(gencor_out$p, method = "fdr")
 gencor_out$fdr = as.numeric(gencor_out$fdr)
+
+# arrange data types of each column accordingly for subsequent analysis
+# and plotting
+gencor_out$T1 = as.factor(gencor_out$T1)
+gencor_out$T2 = as.factor(gencor_out$T2)
+gencor_out$Rg = as.numeric(gencor_out$Rg)
+gencor_out$se = as.numeric(gencor_out$se)
+gencor_out$p = as.numeric(gencor_out$p)
 
 ################################################################################
 
@@ -72,22 +91,47 @@ ext_traitsum = read.csv2("/data/workspaces/lag/workspaces/lg-genlang/Working/23a
 
 ```{r plotRhythmGencors}
 
-gencor_out$trait_names = factor(gencor_out$trait_names,levels=gencor_out$trait_names)
+gencor_out$name = factor(gencor_out$name,levels=gencor_out$name)
 
-gencor_out$sig = ifelse(gencor_out$P < 0.05,'#00786A', 'black')
+gencor_out$sig = ifelse(gencor_out$fdr < 0.05,'#00786A', 'black')
 
 ggplot(gencor_out,
-       aes(x = trait_names, y = Rg)) +
-       geom_errorbar(aes(ymax = Rg + SE,  ymin = Rg - SE),
+       aes(x = name, y = Rg)) +
+       geom_errorbar(aes(ymax = Rg + se,  ymin = Rg - se),
        position = position_dodge(0.9),width=0) +
        geom_point(position = position_dodge(0.9), size = 2, colour = gencor_out$sig) +
        labs(y = "Genetic Correlation (Rg)", x = "Traits") +
        coord_flip() + ylim(c(-0.5, 0.5)) +
        geom_hline(yintercept = 0, linetype="dotted", color = "red", size=0.5) +
-       scale_x_discrete(limits = rev(levels(gencor_out$trait_names))) +
+       scale_x_discrete(limits = rev(levels(gencor_out$name))) +
        theme(plot.title = element_text(hjust = 0.5), text=element_text(size=17)) + theme_minimal()
 
-ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/rhythm_vs_dys_genlang_danish_gencor.pdf")
+# ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/rhythm_vs_dys_genlang_danish_gencor.pdf")
+
+# Define the order of traits as you want
+order = c("Dyslexia", "Word Reading", "Phoneme Awareness", "Non-word Reading", 
+          "Non-word Repetition", "Spelling", "Non-verbal IQ",
+          "Overall school performance", "Language better than maths",
+          "Oral exam better than written", "Danish better than English",
+          "Language Resting-state Functional Connectivity", "Planum Temporale Asymmetry")
+
+# use arrange() to order the data by variable, subgroup, and study columns
+gencor_out_ordered <- gencor_out %>%
+  arrange(match(name, order), T1, T2, Rg, se, p, fdr)
+
+# Plot a forestplot
+p = ggforestplot::forestplot(
+  df = gencor_out_ordered,
+  estimate = gencor_out_ordered$Rg,
+  pvalue = gencor_out_ordered$fdr,
+  psignif = 0.05,
+  xlab = "Genetic correlations",
+  xmin = gencor_out_ordered$Rg - 1.96 * !!gencor_out_ordered$se,
+  xmax = gencor_out_ordered$Rg + 1.96 * !!gencor_out_ordered$se
+) + ggplot2::coord_cartesian(xlim = c(-0.5, 0.5))
+
+#ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/rhythm_vs_dys_genlang_danish_gencor_v2.pdf", p,
+#       width = 8, height = 5, dpi = 600)
 
 ```
 
@@ -159,7 +203,7 @@ plot(high_hclust_results, cex = 0.25, main = "Genetic Correlations among highly 
 
 # Determine the optimal number of clusters using the elbow method
 high_wss <- sapply(2:10, function(k) sum(kmeans(high_dist_matrix, centers = k)$withinss))
-plot(2:10, high_wss, type = "b", xlab = "Number of clusters", ylab = "Within-cluster sum of squares")
+
 
 # Identify the elbow point using the "knee point" algorithm
 high_knee <- function(x, y) {
@@ -170,7 +214,10 @@ high_knee <- function(x, y) {
 }
 
 high_num_clusters <- high_knee(2:10, high_wss)
+pdf("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/hclust_46topCorrelatedTraits_elbowpoint.pdf")
+plot(2:10, high_wss, type = "b", xlab = "Number of clusters", ylab = "Within-cluster sum of squares")
 abline(v = high_num_clusters, col = "red")
+dev.off()
 
 # Cut the dendrogram at the optimal number of clusters
 high_clusters <- cutree(high_hclust_results, k = high_num_clusters)
@@ -259,7 +306,6 @@ p = ggforestplot::forestplot(
 
 #######################################################
 # replace trait codes with decent trait names for the publication figure
-
 trait_desc = ext_traitsum[,c(1,2,5)]
 
 # remove ".sumstats.gz" from file names to match what we have in munged file names
@@ -268,7 +314,7 @@ trait_desc$GWAS_summary_statistics_file = str_replace(trait_desc$GWAS_summary_st
 colnames(trait_desc) = c("Category", "Measured_phenotype", "name")
 
 # merge trait names and genetic correlations, rename colnames
-# cuz forestplot needs s specific colname: name
+# cuz forestplot needs a specific colname: name
 merged_df = merge(df_compare_traits, trait_desc, by = "name")
 merged_df = merged_df[,-1]
 colnames(merged_df) = c("T2", "Rg", "se", "P", "fdr", "group", "name")
@@ -326,5 +372,63 @@ p3 = ggforestplot::forestplot(
 #ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/factors_vs_selected49traits_v3.pdf", p3,
 #       width = 10, height = 15, dpi = 600)
 
+###########################################
+# Plot a forestplot for publicationn
+# merge education and cognitive traits categories
+# add pain into Physical health and exercise
+merged_df[merged_df$group=="Education",]$group = "Education & Cognitive"
+merged_df[merged_df$group=="Cognitive",]$group = "Education & Cognitive"
+merged_df[merged_df$group=="Pain",]$group = "Physical health and exercise"
+merged_df[merged_df$group=="Reading and language (GenLang)",]$group = "Education & Cognitive"
+merged_df[merged_df$group=="Education & Cognitive",]$group = "Reading, Education & Cognition"
+
+p4 = ggforestplot::forestplot(
+  df = merged_df,
+  estimate = merged_df$Rg,
+  pvalue = merged_df$fdr,
+  psignif = 0.05,
+  xlab = "Genetic correlations",
+  colour = merged_df$T2,
+  xmin = merged_df$Rg - 1.96 * !!merged_df$se,
+  xmax = merged_df$Rg + 1.96 * !!merged_df$se
+) +
+  ggforce::facet_col(
+    facets = ~group,
+    scales = "free_y",
+    space = "free"
+) +
+  scale_color_manual(values=c("orange", "darkblue", "darkgreen")) +
+  theme(legend.position = "bottom") +
+  labs(colour = "Factors")
+
+#ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gencor/factors_vs_selected49traits_v4.pdf", p4,
+#       width = 10, height = 15, dpi = 600)
+
+```
+```{r}
+# read gencor results between common and independent factors and 49 selected external sumstats
+metabrainres = read.table("/data/workspaces/lag/workspaces/lg-sulcal-morphology/working_data/overlap/metabrain_results.txt", header = T)
+metabrainres$Beta = as.numeric(metabrainres$Beta)
+metabrainres$Standard_error = as.numeric(metabrainres$Standard_error)
+metabrainres$P.value = as.numeric(metabrainres$P.value)
+metabrainres$fdr = p.adjust(metabrainres$P.value, method = "fdr")
+colnames(metabrainres)[17] = "se"
+colnames(metabrainres)[6] = "name"
+metabrainres$name = as.factor(metabrainres$name)
+# plot a forestplotggforestplot::forestplot
+eqtl_plot = ggforestplot::forestplot(
+  df = metabrainres,
+  estimate = metabrainres$Beta,
+  pvalue = metabrainres$fdr,
+  psignif = 0.05,
+  xlab = "Beta",
+  xmin = metabrainres$Beta - 1.96 * !!metabrainres$se,
+  xmax = metabrainres$Beta + 1.96 * !!metabrainres$se
+)
+#write.table(metabrainres,
+#            "/data/workspaces/lag/workspaces/lg-sulcal-morphology/working_data/overlap/metabrain_results.tab",
+#            quote=F, row.names=F)
+#ggsave("/data/workspaces/lag/workspaces/lg-sulcal-morphology/working_data/overlap/metabrain_plot.pdf", eqtl_plot,
+#       width = 10, height = 5, dpi = 600)
 ```
 

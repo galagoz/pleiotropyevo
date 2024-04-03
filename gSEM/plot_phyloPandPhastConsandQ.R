@@ -24,12 +24,31 @@ outDir = "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_re
 
 colnames(input) = c("CHR", "STR", "END", "BETA", "SE", "P", "Q", "Q_P", "phastCons", "phyloP")
 
+# Significantly hetero SNPs
+input_QPranked = input[order(Q_P),]
+input_sig = input[input$Q_P<5e-8,]
+
 input_Qranked = input[order(Q),]
 input_sig = input[input$P<5e-8,]
 input_nomsig = input[input$P<0.05,]
 nrow(input_nomsig)
+
 input_nomsig$mlog10P = -log(input_nomsig$P)
 input_nomsig$mlog10Q_P = -log(input_nomsig$Q_P)
+
+# read in clumped SNPs list
+clumped = fread("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/plink/GenomicSEM_multivarGWAS_CPM_dys_rhyimp_GCcorr_withN.clumped.leadSNP_genomicCoordinates.tab",
+                header = T)
+# remove NA rows
+clumped = drop_na(clumped)
+# add "chr" to the CHR column
+clumped$CHR = sub("^", "chr", clumped$CHR)
+colnames(clumped) = c("CHR", "END", "SNP")
+# intersect input_nomsig and clumped
+input_clumped = merge(input_nomsig, clumped, by = c("CHR", "END"))
+
+nrow(input_clumped)
+nrow(clumped)
 
 # tag 18 genome-wide risk loci (this list is taken from FUMA)
 input_nomsig$riskloci = "no"
@@ -44,7 +63,7 @@ input_nomsig[input_nomsig$CHR=="chr6"&input_nomsig$END=="108906200",]$riskloci =
 input_nomsig[input_nomsig$CHR=="chr7"&input_nomsig$END=="106863170",]$riskloci = "yes"
 input_nomsig[input_nomsig$CHR=="chr11"&input_nomsig$END=="30395895",]$riskloci = "yes"
 input_nomsig[input_nomsig$CHR=="chr11"&input_nomsig$END=="111916647",]$riskloci = "yes"
-input_nomsig[input_nomsig$CHR=="chr12"&input_nomsig$END=="60971306",]$riskloci = "yes"
+input_nomsig[input_nomsig$CHR=="chr12"&input_nomsig$END=="60971306",]$riskloci = "yes" # this SNP does not have a phastCons score!
 input_nomsig[input_nomsig$CHR=="chr13"&input_nomsig$END=="59565064",]$riskloci = "yes"
 input_nomsig[input_nomsig$CHR=="chr16"&input_nomsig$END=="30125840",]$riskloci = "yes"
 input_nomsig[input_nomsig$CHR=="chr17"&input_nomsig$END=="34908385",]$riskloci = "yes"
@@ -80,7 +99,8 @@ median(input_hetero$phastCons)
 
 plot(input_sig$BETA, input_sig$phyloP)
 
-# scatter
+# scatter - version 1
+# phyloP vs. -log10(Q_P)
 ggplot(NULL, aes(Q, phyloP)) +
        geom_point(data = input_sig) +
        geom_point(data = input_homo, color = "green") +
@@ -93,14 +113,63 @@ p1 = ggplot(input_nomsig, aes(mlog10Q_P, phyloP)) +
   geom_point(aes(colour = mlog10P)) +
   geom_point(data = input_nomsig[input_nomsig$riskloci=="yes",], color = "red") +
   #geom_point(data = input_nomsig[input_nomsig$P<5e-9,], color = "red") +
-  geom_vline(aes(xintercept = -log(5e-8)), size = 1.2, lty = 2, color = "red") +
+  geom_vline(aes(xintercept = -log10(5e-08)), size = 1, lty = 2, color = "red") +
   border()
 
-ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM//Qpvalues_vs_phyloP_CPM_FUMAriskLociMarked.png",
-       p1, width = 5, height = 5, dpi = 600)
+#ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/Qpvalues_vs_phyloP_CPM_FUMAriskLociMarked.png",
+#       p1, width = 5, height = 5, dpi = 600)
 
 # chr13:59565064 SNP has the lowest phyloP (strongest accelated selection)
 # look further into this SNP.
+
+# scatter - version 2
+# phyloP vs. -log10(GWAS_P)
+
+p2 = ggplot(input_nomsig, aes(mlog10P, phyloP)) +
+  geom_point(aes(colour = mlog10Q_P)) +
+  geom_point(data = input_nomsig[input_nomsig$riskloci=="yes",], color = "red") +
+  geom_vline(aes(xintercept = -log10(5e-08)), size = 1, lty = 2, color = "red") +
+  border()
+
+#ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/GWASpvalues_vs_phyloP_CPM_FUMAriskLociMarked_v2.png",
+#       p2, width = 5, height = 5, dpi = 600)
+
+# scatter 3
+# phastCons vs. -log10(GWAS_P)
+
+p3 = ggplot(input_nomsig, aes(mlog10P, phastCons)) +
+  geom_point(aes(colour = mlog10Q_P)) +
+  geom_point(data = input_nomsig[input_nomsig$riskloci=="yes",], color = "red") +
+  geom_vline(aes(xintercept = -log10(5e-08)), size = 1, lty = 2, color = "red") +
+  border()
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/GWASpvalues_vs_phastCons_CPM_FUMAriskLociMarked.png",
+       p3, width = 5, height = 5, dpi = 600)
+
+# extremely conserved one is chr11:111916647
+
+# scatter 4 - with clumped SNPs
+# phastCons vs. -log10(GWAS_P)
+
+p4 = ggplot(input_clumped, aes(mlog10P, phastCons)) +
+  geom_point(aes(colour = mlog10Q_P)) +
+  geom_point(data = input_nomsig[input_nomsig$riskloci=="yes",], color = "red") +
+  geom_vline(aes(xintercept = -log10(5e-08)), size = 1, lty = 2, color = "red") +
+  border()
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/GWASpvalues_vs_phastCons_CPM_FUMAriskLociMarked_clumped.pdf",
+       p4, width = 5, height = 5, dpi = 600)
+
+# extremely conserved one is chr11:111916647
+
+p5 = ggplot(input_clumped, aes(phastCons, mlog10P)) +
+  geom_point(colour = "#214D9D") +
+  geom_point(data = input_nomsig[input_nomsig$riskloci=="yes",], color = "red") +
+  geom_hline(aes(yintercept = -log10(5e-08)), size = 1, lty = 2, color = "#AA1926") +
+  border() + theme(legend.position = "non")
+
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/GWASpvalues_vs_phastCons_CPM_FUMAriskLociMarked_clumped_v2_woLegend.pdf",
+       p5, width = 5, height = 5, dpi = 600)
 
 #--------------------------------------------
 #pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP.pdf", width = 5, height = 5)
@@ -222,7 +291,8 @@ p1 = ggplot(input, aes(Q, phyloP)) +
   geom_smooth(method='lm', formula= y~x)+
   scale_fill_viridis()
 #dev.off()
-ggsave(p1, "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_smoothScatter_v2.png", width = 5, height = 5, dpi = 300)
+ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phyloP_smoothScatter_v2.png",
+       p1, width = 5, height = 5, dpi = 300)
 cor.test(input$Q, input$phyloP, method=c("pearson"))
 
 #pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_hexagon.pdf", width = 5, height = 5)
@@ -231,7 +301,8 @@ p2 = ggplot(input, aes(Q, phastCons)) +
   geom_smooth(method='lm', formula= y~x)+
   scale_fill_viridis()
 #dev.off()
-ggsave(p2, "/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_smoothScatter_v2.png", width = 5, height = 5, dpi = 300)
+ggsave("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results/Q_phastCons_smoothScatter_v2.png", 
+       p2, width = 5, height = 5, dpi = 300)
 cor.test(input$Q, input$phastCons, method=c("pearson"))
 
 
@@ -239,6 +310,44 @@ pdf("/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/results/gSEM/evo_results
 plot_grid(p1, p2)
 dev.off()
 
+#--------------------------------------------
+# make a LocusZoom plot of chr11:111916647 haplotype
+
+input_chr11 = input[input$CHR=="chr11",]
+input_rs10891314_0 = input_chr11[input_chr11$END>111600000,]
+input_rs10891314 = input_rs10891314_0[input_rs10891314_0$END<112000000,]
+
+locusZoom1 = ggplot(input_rs10891314, aes(END, -log10(P))) +
+             geom_point(aes(colour = -log10(Q_P))) +
+             border() + theme(legend.position = "none",
+                              axis.title.x=element_blank(),
+                              axis.text.x=element_blank(),
+                              axis.ticks.x=element_blank())
+locusZoom2 = ggplot(input_rs10891314, aes(END, phastCons)) +
+             geom_line(aes(END, phastCons)) +
+             border() + theme(axis.title.x=element_blank(),
+                              axis.text.x=element_blank(),
+                              axis.ticks.x=element_blank())
+locusZoom3 = ggplot(input_rs10891314, aes(END, phyloP)) +
+             geom_line(aes(END, phyloP)) +
+             border() + theme(axis.title.x=element_blank())
+
+locusZoom_final = plot_grid(locusZoom1, locusZoom2, locusZoom3,
+                            nrow = 3, ncol = 1, rel_heights = c(1, 0.3, 0.3),
+                            align = "v")
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/rs10891314_locusZoom_Q_phastCons_phyloP.pdf",
+       locusZoom_final,
+       width = 5, height = 7, dpi = 600)
+
+# plot locusZoom1 with legend
+locusZoom1_2 = ggplot(input_rs10891314, aes(END, -log10(P))) +
+  geom_point(aes(colour = -log10(Q_P))) +
+  border() + theme(axis.title.x=element_blank(),
+                   axis.text.x=element_blank(),
+                   axis.ticks.x=element_blank())
+ggsave("/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/results/gSEM/rs10891314_locusZoom_Q.pdf",
+       locusZoom1_2,
+       width = 5, height = 5, dpi = 600)
 #--------------------------------------------
 
 sessionInfo()

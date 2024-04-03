@@ -4,7 +4,7 @@
 # Run this on grid as "bash run_make_annot_l2.sh"
 
 # Variables
-inDir="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/phyloP"
+inDir="/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/beds"
 
 # Run LD Score Estimation
 

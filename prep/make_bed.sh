@@ -20,7 +20,7 @@
 # PATHS
 inDir_phylop="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/phyloP/"
 inDir_phastcons="/data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/phastCons/"
-inDir_haqer="/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/beds/"
+inDir_beds="/data/workspaces/lag/workspaces/lg-genlang/Working/23andMe/Dyslexia2/Evolution/dys_rhy_pleiotropy/resources/beds/"
 
 module load bedtools/2.29.2
 
@@ -137,22 +137,26 @@ module load bedtools/2.29.2
 #done
 
 ##############################
-# Make a bed file of all SNPs with a phyloP score
-awk '{$4=""; $5=""; print $0}' ${inDir_phylop}allchr.phyloP46way.primate.bed > ${inDir_phylop}allchr.phyloP46way.primate_control.bed
-sort -k1,1 -k2,2n ${inDir_phylop}allchr.phyloP46way.primate_control.bed > ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed
-awk '$2!="X" && $2!="Y"' ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed > ${inDir_phylop}tmp && mv ${inDir_phylop}tmp ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed
-awk -v OFS='\t' '{$1=$1; print}' ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed > ${inDir_phylop}tmp
-chmod 777 ${inDir_phylop}tmp
-mv ${inDir_phylop}tmp ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed
+# Make a bed file including all SNPs with a phyloP score
+# NOTE: You need to specify a path other than /tmp while
+# sorting these bed files, cuz they are too big for sort to
+# handle using /tmp folder.
 
-##############################
-# Make a bed file of all SNPs with a phastCons score
-awk '{$4=""; $5=""; print $0}' ${inDir_phastcons}allchr.phastCons46way.primate.bed > ${inDir_phastcons}allchr.phastCons46way.primate_control.bed
-sort -k1,1 -k2,2n ${inDir_phastcons}allchr.phastCons46way.primate_control.bed > ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed
-awk '$2!="X" && $2!="Y"' ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed > ${inDir_phastcons}tmp && mv ${inDir_phastcons}tmp ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed
-awk -v OFS='\t' '{$1=$1; print}' ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed > ${inDir_phastcons}tmp
-chmod 777 ${inDir_phastcons}tmp
-mv ${inDir_phastcons}tmp ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed
+#awk '{$4=""; $5=""; print $0}' ${inDir_phylop}allchr.phyloP46way.primate.bed > ${inDir_phylop}allchr.phyloP46way.primate_control.bed
+#sort -T /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/phyloP -k1,1 -k2,2n ${inDir_phylop}allchr.phyloP46way.primate_control.bed > ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed
+#awk '$2!="X" && $2!="Y"' ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed > ${inDir_phylop}tmp && mv ${inDir_phylop}tmp ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed
+#awk -v OFS='\t' '{$1=$1; print}' ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed > ${inDir_phylop}tmp
+#chmod 777 ${inDir_phylop}tmp
+#mv ${inDir_phylop}tmp ${inDir_phylop}allchr.phyloP46way.primate.sorted_control.bed
+
+# Make another bed file including all SNPs with a phastCons
+# score.
+#awk '{$4=""; $5=""; print $0}' ${inDir_phastcons}allchr.phastCons46way.primate.bed > ${inDir_phastcons}allchr.phastCons46way.primate_control.bed
+#sort -T /data/clusterfs/lag/users/gokala/beat-dyslexiaevol/resources/phastCons -k1,1 -k2,2n ${inDir_phastcons}allchr.phastCons46way.primate_control.bed > ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed
+#awk '$2!="X" && $2!="Y"' ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed > ${inDir_phastcons}tmp && mv ${inDir_phastcons}tmp ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed
+#awk -v OFS='\t' '{$1=$1; print}' ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed > ${inDir_phastcons}tmp
+#chmod 777 ${inDir_phastcons}tmp
+#mv ${inDir_phastcons}tmp ${inDir_phastcons}allchr.phastCons46way.primate.sorted_control.bed
       
 ##############################
 # Make a bed file from the HAQER csv.
@@ -172,3 +176,20 @@ mv ${inDir_phastcons}tmp ${inDir_phastcons}allchr.phastCons46way.primate.sorted_
 #awk -v OFS='\t' '{$1=$1; print}' ${inDir_haqer}HAQER.sorted.bed > ${inDir_haqer}tmp
 #chmod 777 ${inDir_haqer}tmp
 #mv ${inDir_haqer}tmp ${inDir_haqer}HAQER.sorted.bed
+
+##############################
+# Make bed files for Nott et al. annotations.
+
+# Sort tab files based on 1st and 2nd columns
+#for i in ${inDir_beds}*.tab; do
+#	
+#	sort -k1,1 -k2,2n ${i} > ${i%.tab}.sorted.bed;
+#
+#done
+
+# Remove X and Y chromosomes.
+#for i in ${inDir_beds}*.sorted.bed; do
+#
+#	awk '$1!="chrX" && $1!="chrY"' ${i} > ${inDir_beds}tmp && mv ${inDir_beds}tmp ${i};
+#
+#done
