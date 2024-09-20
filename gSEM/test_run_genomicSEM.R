@@ -48,7 +48,7 @@ Dyslexia ~~ a*Dyslexia
 Rhythm_impairment ~~ a*Rhythm_impairment"
 
 # Run the multivariate GWAS with Independent Pathways Model
-CorrelatedFactors2 = userGWAS(covstruc = LDSCoutput_2traits,
+orrelatedFactors2 = userGWAS(covstruc = LDSCoutput_2traits,
                                SNPs = dys_and_rhyimp_sumstats_firstLine,
                                estimation = "DWLS", 
                                model = model2, 

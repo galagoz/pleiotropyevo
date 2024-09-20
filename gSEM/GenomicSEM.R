@@ -68,33 +68,24 @@ model = "F1 =~ 1*Dyslexia + 1*Rhythm_impairment"
 #run the multivariate GWAS using parallel processing
 CommonFactor2_DWLS = usermodel(LDSCoutput_2traits, estimation="DWLS", model = model)
 
-#[1] "Running primary model"
-#[1] "Calculating CFI"
-#[1] "Calculating Standardized Results"
-#[1] "Calculating SRMR"
-#elapsed 
-#0.528 
-#[1] "Model fit statistics are all printed as NA as you have specified a fully saturated model (i.e., df = 0)"
-#[1] "Please note that when equality constraints are used in the current version of Genomic SEM that the standardized output will also impose the same constraint."
-#> CommonFactor2_DWLS
-#$modelfit
-#chisq df p_chisq AIC CFI SRMR
-#df    NA  0      NA  NA  NA   NA
-
-#$results
-#lhs op               rhs Unstand_Est         Unstand_SE STD_Genotype    STD_Genotype_SE   STD_All
-#1          Dyslexia ~~          Dyslexia   0.8246293 0.0409209002331068    0.7167753 0.0411889231296829 0.7167753
-#5 Rhythm_impairment ~~ Rhythm_impairment   0.2563430 0.0233969529962123    0.7167753  0.044014456010507 0.7167753
-#4                F1 ~~                F1   0.1908639 0.0174246241862993    0.2832247 0.0258565530578309 0.2832247
-#2                F1 =~          Dyslexia   1.0000000                       1.0000000                    0.5321886
-#3                F1 =~ Rhythm_impairment   1.0000000                       1.0000000                    0.5321886
-
-#p_value
-#1 2.595675e-90
-#5 6.201168e-28
-#4 6.379463e-28
-#2           NA
-#3           NA
+# [1] "Running primary model"
+# [1] "Calculating CFI"
+# [1] "Calculating Standardized Results"
+# [1] "Calculating SRMR"
+# elapsed 
+# 7.784 
+# [1] "Model fit statistics are all printed as NA as you have specified a fully saturated model (i.e., df = 0)"
+# $modelfit
+# chisq df p_chisq AIC CFI SRMR
+# df    NA  0      NA  NA  NA   NA
+# 
+# $results
+# lhs op               rhs Unstand_Est          Unstand_SE STD_Genotype    STD_Genotype_SE   STD_All      p_value
+# 1          Dyslexia ~~          Dyslexia  0.11002123 0.00611191127152301    0.7175451 0.0407745118456241 0.7175451 1.909290e-72
+# 5 Rhythm_impairment ~~ Rhythm_impairment  0.09762516 0.00609435901716243    0.7175451 0.0433674050247672 0.7175451 9.424537e-58
+# 4                F1 ~~                F1  0.04081673 0.00387841122666485    0.2824549 0.0268389034118519 0.2824549 6.690829e-26
+# 2                F1 =~          Dyslexia  1.00000000                        1.0000000                    0.5314649           NA
+# 3                F1 =~ Rhythm_impairment  1.00000000                        1.0000000                    0.5314649           NA
 
 #----------------------------------------------------------------------------------------------------------
 # 4) Prepare the summary statistics for GWAS
